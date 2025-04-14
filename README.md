@@ -1,15 +1,39 @@
 # CIFFY Application
 
 <p align="center">
-  <img src="assets/Logo.svg" alt="CIFFY Logo" width="200"/>
+  <img src="assets/Logo.svg" alt="CIFFY Logo" width="220"/>
 </p>
 
-CIFFY는 세종대학교 학생들을 위한 시간표 제작 및 관리 애플리케이션입니다.
+<p align="center">
+  <img src="https://img.shields.io/badge/Award-Grand%20Prize%20(Computer%20Science)-gold" alt="컴퓨터공학과 학장상"/>
+  <img src="https://img.shields.io/badge/Award-Grand%20Prize%20(President's%20Award)-blue" alt="총장상"/>
+  <img src="https://img.shields.io/badge/Platform-iOS%20%7C%20Android-green" alt="플랫폼"/>
+</p>
+
+## 🏆 수상 내역
+
+- **컴퓨터공학과 학술제 대상 (컴퓨터공학과 학장상)**
+- **세종대학교 소프트웨어융합학술제 대상 (세종대학교 총장상)**
+
+## 📝 프로젝트 소개
+
+CIFFY는 세종대학교 학생들을 위한 혁신적인 시간표 제작 및 관리 애플리케이션입니다. 사용자 중심의 직관적인 인터페이스와 세종대학교 포털 연동 기능으로 학생들의 학기 계획을 효율적으로 지원합니다.
+
+복잡한 강의 선택과 시간표 작성 과정을 간소화하여 학생들이 더 나은 학업 계획을 세울 수 있도록 도와줍니다. 그 우수성을 인정받아 컴퓨터공학과 학술제와 세종대학교 소프트웨어융합학술제에서 모두 대상을 수상하였습니다.
 
 ## ✨ 주요 기능
 
-- **시간표 제작**: 간편하게 시간표를 만들고 관리할 수 있습니다.
-- **포털 계정 연동**: 세종대학교 포털 계정으로 로그인하여 서비스를 이용할 수 있습니다.
+### 시간표 제작 및 관리
+
+- **직관적인 시간표 UI**: 사용자 친화적인 인터페이스로 쉽고 빠른 시간표 작성
+- **강의 시간 충돌 감지**: 자동으로 시간 충돌을 감지하여 알림
+- **맞춤형 시간표 템플릿**: 다양한 시간표 스타일과 색상 옵션 제공
+
+### 세종대학교 포털 연동
+
+- **포털 계정 로그인**: 세종대학교 포털 계정으로 안전하고 간편한 로그인
+- **강의 정보 자동 동기화**: 현재 수강 중인 강의 정보 자동 업데이트
+- **강의계획서 조회**: 강의 세부 정보 및 계획서 쉽게 확인 가능
 
 ## 📱 스크린샷
 
@@ -20,9 +44,9 @@ CIFFY는 세종대학교 학생들을 위한 시간표 제작 및 관리 애플�
 
 ## 🛠️ 기술 스택
 
-- Flutter
-- Dart
-- Material Design
+- **Frontend**: Flutter, Dart
+- **UI/UX**: Material Design, Custom UI Components
+- **Authentication**: Secure Login System
 
 ## 🚀 시작하기
 
@@ -51,10 +75,21 @@ flutter pub get
 flutter run
 ```
 
+## 👨‍💻 개발팀
+
+CIFFY는 세종대학교 컴퓨터공학과 학생들로 구성된 팀에 의해 개발되었습니다.
+
 ## 🤝 기여하기
 
-프로젝트에 기여하고 싶으시다면 이슈를 제기하거나 풀 리퀘스트를 보내주세요.
+프로젝트에 기여하고 싶으시다면 이슈를 제기하거나 풀 리퀘스트를 보내주세요. 모든 기여는 소중히 검토됩니다.
 
 ## 📄 라이선스
 
 이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+
+---
+
+<p align="center">
+  <b>CIFFY - 세종대학교 학생들을 위한 최고의 시간표 솔루션</b><br>
+  컴퓨터공학과 학술제 대상 & 세종대학교 소프트웨어융합학술제 총장상 수상작
+</p>
