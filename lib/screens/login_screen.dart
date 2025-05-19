@@ -9,10 +9,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _saveInfo = false;
-  final _idController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
+  bool _isSaved = false;
 
   @override
   void initState() {
@@ -37,11 +37,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 42.0, vertical: 50),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -52,20 +54,17 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 28,
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 '로그인',
-                style: TextStyle(
-                  fontSize: 20,
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF0A0744),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '세종대학교 포털 계정으로 로그인하세요!',
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey[600],
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 32),
@@ -73,19 +72,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _idController,
                 decoration: InputDecoration(
                   hintText: '아이디',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 14,
+                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.4),
+                    fontWeight: FontWeight.w500,
                   ),
                   filled: true,
                   fillColor: Colors.grey[100],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.grey[300]!,
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.primary,
+                      width: 2.0,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 16,
+                    vertical: 14,
                   ),
                 ),
               ),
@@ -95,84 +104,100 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: '비밀번호',
-                  hintStyle: TextStyle(
-                    color: Colors.grey[500],
-                    fontSize: 14,
+                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.4),
+                    fontWeight: FontWeight.w500,
                   ),
                   filled: true,
                   fillColor: Colors.grey[100],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: Colors.grey[300]!,
+                      width: 1.5,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.primary,
+                      width: 2.0,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 16,
+                    vertical: 14,
                   ),
                 ),
               ),
-              Transform.translate(
-                offset: const Offset(-8, 0),
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: _saveInfo,
-                      onChanged: (value) {
-                        setState(() {
-                          _saveInfo = value ?? false;
-                        });
-                      },
-                      activeColor: const Color(0xFF0A0744),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _isSaved,
+                    onChanged: (value) {
+                      setState(() {
+                        _isSaved = value ?? false;
+                      });
+                    },
+                    activeColor: theme.colorScheme.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _saveInfo = !_saveInfo;
-                        });
-                      },
-                      child: Text(
-                        '정보 저장하기',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
+                    side: BorderSide(
+                      color: theme.colorScheme.primary.withOpacity(0.6),
+                      width: 1.5,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isSaved = !_isSaved;
+                      });
+                    },
+                    child: Text(
+                      '정보 저장하기',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color:
+                            theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 40.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _isFormValid ? () {} : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isFormValid
-                          ? const Color(0xFF0A0744)
-                          : const Color(0xFF6B6B8D),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                      disabledBackgroundColor: const Color(0xFF6B6B8D),
-                      disabledForegroundColor: Colors.white,
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // 로그인 성공 시 홈 화면으로 이동
+                    Navigator.pushReplacementNamed(context, '/home');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isFormValid
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.primary.withOpacity(0.5),
+                    foregroundColor: Colors.white,
+                    disabledForegroundColor:
+                        Colors.white, // Ensure text remains white when disabled
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      '로그인 하기',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    '로그인 하기',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -0.5,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
+              const SizedBox(height: 60),
             ],
           ),
         ),

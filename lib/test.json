@@ -1,0 +1,69 @@
+{
+    "graduation_requirements": {
+      "total_credits": {
+        "default": 130,
+        "software_convergence_college": 140,
+        "architecture_major_5_year": 168,
+        "aerospace_engineering": 140
+      },
+      "common_core_required": [
+        "English Listening Practice 1",
+        "English Reading Practice 1",
+        "문제해결을위한글쓰기와발표",
+        "세종사회봉사1",
+        "서양철학:쟁점과토론",
+        "대학생활과진로설계",
+        "취업역량개발론"
+      ],
+      "core_competency_required": {
+        "공동체의식역량": ["세종인을위한진로설계", "세종인을위한전공탐색"],
+        "문제해결역량": ["문제해결을위한글쓰기와발표"],
+        "논리비판적사고역량": ["서양철학:쟁점과토론"],
+        "창의융합적사고역량": ["우주자연인간"],
+        "글로벌역량": ["대학영어"],
+        "자기관리역량": ["창업과기업가정신1"],
+        "소통역량": ["취창업과진로설계"],
+        "총합계": "13학점"
+      },
+      "major_requirements": {
+        "single_major": "학과 또는 전공 기준에 따라 상이함",
+        "double_major": {
+          "전공필수": 15,
+          "전공선택": 24,
+          "합계": 39
+        },
+        "special_cases": {
+          "architecture_major": "별도규정",
+          "교직과정": "주전공/복수전공 각각 50학점 이상",
+          "계약학과": "별도규정"
+        }
+      },
+      "graduation_certifications": {
+        "기본요건": [
+          "영어졸업인증",
+          "고전독서졸업인증"
+        ],
+        "예체능대학": "졸업작품(시험) 이수로 대체"
+      },
+      "english_certification": {
+        "general": {
+          "TOEIC": 700,
+          "TOEFL_iBT": 80,
+          "TEPS": 301,
+          "OPIc": "Intermediate Low",
+          "TOEIC_Speaking": "Intermediate Low",
+          "G-TELP_Level_2": 65
+        },
+        "english_lit_major": {
+          "TOEIC": 800,
+          "TOEFL_iBT": 91,
+          "TEPS": 348,
+          "OPIc": "Intermediate Mid 1",
+          "TOEIC_Speaking": "Intermediate Mid 1",
+          "G-TELP_Level_2": 77
+        },
+        "대체과목": "Intensive English (3학점)"
+      }
+    }
+  }
+  

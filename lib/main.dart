@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screens/start_screen.dart';
+import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/schedule_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,12 +16,84 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'CIFFY',
       theme: ThemeData(
+        fontFamily: 'Pretendard',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0A0744),
+          seedColor: const Color(0xFF06003A),
+          primary: const Color(0xFF06003A),
+          secondary: const Color(0xFF7173FD),
+          background: const Color(0xFFF5F3F1),
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF5F3F1),
+        textTheme: const TextTheme(
+          displayLarge: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF06003A),
+          ),
+          displayMedium: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF06003A),
+          ),
+          bodyLarge: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 16,
+            fontWeight: FontWeight.normal,
+            color: Color(0xFF06003A),
+          ),
+          bodyMedium: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: Color(0xFF06003A),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF06003A),
+            foregroundColor: Colors.white,
+            disabledBackgroundColor: const Color(0x8006003A),
+            disabledForegroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.grey[100],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: Colors.grey[300]!,
+              width: 1.5,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
+              color: Color(0xFF06003A),
+              width: 2.0,
+            ),
+          ),
+          hintStyle: const TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Color(0x8006003A),
+          ),
         ),
         useMaterial3: true,
       ),
-      home: const StartScreen(),
+      initialRoute: '/start',
+      routes: {
+        '/start': (context) => const StartScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+        '/schedule': (context) => const ScheduleScreen(),
+      },
     );
   }
 }
