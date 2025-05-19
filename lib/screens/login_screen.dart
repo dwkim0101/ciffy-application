@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     // 로그인 성공 시 홈 화면으로 이동
-                    Navigator.pushReplacementNamed(context, '/home');
+                    Navigator.pushReplacementNamed(context, '/timetable');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isFormValid

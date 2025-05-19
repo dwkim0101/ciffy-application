@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/start_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/timetable_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/schedule_screen.dart';
 
@@ -91,7 +91,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/start': (context) => const StartScreen(),
         '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/timetable': (context) => const TimeTableScreen(),
         '/schedule': (context) => const ScheduleScreen(),
       },
     );
