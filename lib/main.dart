@@ -1,6 +1,6 @@
+import 'package:ciffy_application/screens/timetable_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/start_screen.dart';
-import 'screens/timetable_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/schedule_screen.dart';
 
@@ -46,6 +46,12 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(
             fontFamily: 'Pretendard',
             fontSize: 14,
+            fontWeight: FontWeight.normal,
+            color: Color(0xFF06003A),
+          ),
+          bodySmall: TextStyle(
+            fontFamily: 'Pretendard',
+            fontSize: 12,
             fontWeight: FontWeight.normal,
             color: Color(0xFF06003A),
           ),

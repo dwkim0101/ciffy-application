@@ -43,57 +43,60 @@ class _BottomBarState extends State<BottomBar> {
         index: _selectedIndex,
         children: _pages,
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-        child: Container(
-          height: 56,
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.5),
-            borderRadius: BorderRadius.circular(5),
-            border: const Border(
-              top: BorderSide(color: Colors.white, width: 1),
-            ),
-          ),
+      bottomNavigationBar: Container(
+        height: 100,
+        color: Colors.white,
+        padding: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: List.generate(_tabs.length, (index) {
               final tab = _tabs[index];
               final isSelected = index == _selectedIndex;
               return Expanded(
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(5),
                   onTap: () => _onItemTapped(index),
                   child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SvgPicture.asset(
-                          tab['icon']!,
-                          width: 24,
-                          height: 24,
-                          colorFilter: ColorFilter.mode(
-                            isSelected
-                                ? const Color(0xFF06003A)
-                                : const Color(0xFF888696),
-                            BlendMode.srcIn,
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: SizedBox(
+                      height: 44,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(
+                            tab['icon']!,
+                            width: 20,
+                            height: 20,
+                            colorFilter: ColorFilter.mode(
+                              isSelected
+                                  ? const Color(0xFF06003A)
+                                  : const Color(0xFF888696),
+                              BlendMode.srcIn,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          tab['label']!,
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.w400,
-                            fontSize: 12,
-                            color: isSelected
-                                ? const Color(0xFF06003A)
-                                : const Color(0xFF888696),
+                          const Spacer(),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              tab['label']!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                                fontSize: 12,
+                                color: isSelected
+                                    ? const Color(0xFF06003A)
+                                    : const Color(0xFF888696),
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

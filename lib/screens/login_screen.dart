@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../widgets/bottom_bar.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,10 +14,14 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isFormValid = false;
   bool _isSaved = false;
+  late final FocusNode _idFocusNode;
+  late final FocusNode _pwFocusNode;
 
   @override
   void initState() {
     super.initState();
+    _idFocusNode = FocusNode();
+    _pwFocusNode = FocusNode();
     _idController.addListener(_validateForm);
     _passwordController.addListener(_validateForm);
   }
@@ -25,6 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _idController.dispose();
     _passwordController.dispose();
+    _idFocusNode.dispose();
+    _pwFocusNode.dispose();
     super.dispose();
   }
 
@@ -70,25 +77,37 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               TextField(
                 controller: _idController,
+                focusNode: _idFocusNode,
                 decoration: InputDecoration(
                   hintText: '아이디',
-                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.4),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFFB6B0C3),
+                    fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w500,
                   ),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor:
+                      (!_idFocusNode.hasFocus && _idController.text.isEmpty)
+                          ? const Color.fromRGBO(6, 0, 58, 0.05)
+                          : Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.grey[300]!,
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6B0C3),
+                      width: 1.5,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6B0C3),
                       width: 1.5,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: theme.colorScheme.primary,
+                    borderSide: const BorderSide(
+                      color: Color(0xFF160095),
                       width: 2.0,
                     ),
                   ),
@@ -96,31 +115,50 @@ class _LoginScreenState extends State<LoginScreen> {
                     horizontal: 16,
                     vertical: 14,
                   ),
+                ),
+                style: TextStyle(
+                  color: _idController.text.isEmpty
+                      ? const Color(0xFFB6B0C3)
+                      : const Color(0xFF160095),
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordController,
+                focusNode: _pwFocusNode,
                 obscureText: true,
                 decoration: InputDecoration(
                   hintText: '비밀번호',
-                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.4),
+                  hintStyle: const TextStyle(
+                    color: Color(0xFFB6B0C3),
+                    fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w500,
                   ),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: (!_pwFocusNode.hasFocus &&
+                          _passwordController.text.isEmpty)
+                      ? const Color.fromRGBO(6, 0, 58, 0.05)
+                      : Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: Colors.grey[300]!,
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6B0C3),
+                      width: 1.5,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFB6B0C3),
                       width: 1.5,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: theme.colorScheme.primary,
+                    borderSide: const BorderSide(
+                      color: Color(0xFF160095),
                       width: 2.0,
                     ),
                   ),
@@ -129,39 +167,51 @@ class _LoginScreenState extends State<LoginScreen> {
                     vertical: 14,
                   ),
                 ),
+                style: TextStyle(
+                  color: _passwordController.text.isEmpty
+                      ? const Color(0xFFB6B0C3)
+                      : const Color(0xFF160095),
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
               Row(
                 children: [
-                  Checkbox(
-                    value: _isSaved,
-                    onChanged: (value) {
-                      setState(() {
-                        _isSaved = value ?? false;
-                      });
-                    },
-                    activeColor: theme.colorScheme.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    side: BorderSide(
-                      color: theme.colorScheme.primary.withOpacity(0.6),
-                      width: 1.5,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: _isSaved,
+                        onChanged: (value) {
+                          setState(() {
+                            _isSaved = value ?? false;
+                          });
+                        },
+                        activeColor: const Color(0xFF160095), // 체크 시 배경
+                        checkColor: Colors.white, // 체크마크 색상
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        side: BorderSide(
+                          color: _isSaved
+                              ? const Color(0xFF160095)
+                              : const Color(0xFFB6B0C3), // 체크 안됐을 때 테두리
+                          width: 1.5,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isSaved = !_isSaved;
-                      });
-                    },
-                    child: Text(
-                      '정보 저장하기',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color:
-                            theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    '정보 저장하기',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color:
+                          theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -173,7 +223,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     // 로그인 성공 시 홈 화면으로 이동
-                    Navigator.pushReplacementNamed(context, '/timetable');
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BottomBar()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isFormValid
@@ -197,7 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 130),
             ],
           ),
         ),
