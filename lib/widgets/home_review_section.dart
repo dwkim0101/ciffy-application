@@ -9,9 +9,15 @@ class HomeReviewSection extends StatelessWidget {
       {
         'title': '스마트UX&UI디자인1',
         'prof': '정수영 교수님',
-        'content': '수업이 체계적이고 실습이 많아요!'
+        'content': '수업이 체계적이고 실습이 많아요!',
+        'code': '001'
       },
-      {'title': '인포그래픽', 'prof': '양땡땡 교수님', 'content': '실무에 바로 쓸 수 있는 팁이 많아요.'},
+      {
+        'title': '인포그래픽',
+        'prof': '양땡땡 교수님',
+        'content': '실무에 바로 쓸 수 있는 팁이 많아요.',
+        'code': '001'
+      },
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,48 +46,62 @@ class HomeReviewSection extends StatelessWidget {
           children: List.generate(reviews.length, (i) {
             final r = reviews[i];
             return Container(
-              margin: const EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.white.withOpacity(0.5),
+                border: Border.all(color: const Color(0xFFF1F2F8), width: 1),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Container(
-                margin: const EdgeInsets.all(8),
-                padding: const EdgeInsets.all(16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      r['title']!,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
-                        color: Color(0xFF06003A),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            r['title']!,
+                            style: const TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                              color: Color(0xFF06003A),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          if ((r['code'] ?? '').isNotEmpty)
+                            Text(
+                              r['code']!,
+                              style: const TextStyle(
+                                fontFamily: 'Pretendard',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                                color: Color(0xFFB6B0C3),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      r['prof']!,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                        color: Color(0xFF888696),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      r['content']!,
-                      style: const TextStyle(
-                        fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Color(0xFF06003A),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Text(
+                        r['prof']!,
+                        style: const TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                          color: Color(0xFFB6B0C3),
+                        ),
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],
