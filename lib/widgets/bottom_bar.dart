@@ -1,3 +1,4 @@
+import 'package:ciffy_application/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../screens/graduation_analysis_screen.dart';
@@ -16,17 +17,17 @@ class _BottomBarState extends State<BottomBar> {
   int _selectedIndex = 0;
 
   final List<Map<String, String>> _tabs = [
-    {'label': '졸업요건분석', 'icon': 'assets/bottom_bar/graduate.svg'},
+    {'label': '홈', 'icon': 'assets/bottom_bar/home.svg'},
     {'label': '시간표짜기', 'icon': 'assets/bottom_bar/timetable.svg'},
-    {'label': '강의후기', 'icon': 'assets/bottom_bar/review.svg'},
+    {'label': '졸업요건분석', 'icon': 'assets/bottom_bar/graduate.svg'},
     {'label': '마이페이지', 'icon': 'assets/bottom_bar/mypage.svg'},
   ];
 
   // 각 탭에 해당하는 화면 위젯 리스트 (실제 화면 위젯으로 교체 필요)
   final List<Widget> _pages = [
-    const GraduationAnalysisScreen(),
+    const HomeScreen(),
     const TimeTableScreen(),
-    const ReviewScreen(),
+    const GraduationAnalysisScreen(),
     const MyPageScreen(),
   ];
 

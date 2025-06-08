@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import '../widgets/bottom_bar.dart';
 import 'survey_screen.dart';
 
 class TimeTableScreen extends StatelessWidget {
