@@ -23,30 +23,32 @@ CIFFY는 세종대학교 학생들을 위한 혁신적인 시간표 제작 및 �
 
 ## ✨ 주요 기능
 
-### 시간표 제작 및 관리
-
-- **직관적인 시간표 UI**: 사용자 친화적인 인터페이스로 쉽고 빠른 시간표 작성
-- **강의 시간 충돌 감지**: 자동으로 시간 충돌을 감지하여 알림
-- **맞춤형 시간표 템플릿**: 다양한 시간표 스타일과 색상 옵션 제공
-
-### 세종대학교 포털 연동
-
-- **포털 계정 로그인**: 세종대학교 포털 계정으로 안전하고 간편한 로그인
-- **강의 정보 자동 동기화**: 현재 수강 중인 강의 정보 자동 업데이트
-- **강의계획서 조회**: 강의 세부 정보 및 계획서 쉽게 확인 가능
+- **마이페이지**: 사용자 정보, 프로필, 수강 과목, 로그아웃/계정 삭제 등 직관적 UI 제공
+- **시간표 제작 및 관리**: 쉽고 빠른 시간표 작성, 강의 시간 충돌 감지, 다양한 템플릿
+- **세종대학교 포털 연동**: 포털 계정 로그인, 강의 정보 자동 동기화, 강의계획서 조회
 
 ## 📱 스크린샷
 
 <p align="center">
-  <img src="screenshots/start_screen.png" alt="시작 화면" width="250"/>
-  <img src="screenshots/login_screen.png" alt="로그인 화면" width="250"/>
+  <img src="screenshots/start_screen.png" alt="시작 화면" width="200"/>
+  <img src="screenshots/login_screen.png" alt="로그인 화면" width="200"/>
+  <img src="assets/mypage_example.png" alt="마이페이지 예시" width="200"/>
 </p>
 
-## 🛠️ 기술 스택
+> **마이페이지**: block_character.svg를 활용한 프로필, Pretendard 폰트, 세련된 카드 UI, 하단 네비게이션 등 최신 디자인 적용
+
+## 🛠️ 기술 스택 및 주요 라이브러리
 
 - **Frontend**: Flutter, Dart
-- **UI/UX**: Material Design, Custom UI Components
+- **UI/UX**: Material Design, Custom UI Components, Pretendard/SUIT 폰트
+- **SVG 지원**: [flutter_svg](https://pub.dev/packages/flutter_svg)로 SVG 아이콘 및 일러스트 활용
 - **Authentication**: Secure Login System
+
+## 📦 주요 Asset 및 폰트 안내
+
+- **SVG 일러스트/아이콘**: `assets/block_character.svg`, `assets/bottom_bar/*.svg` 등 다양한 SVG 활용
+- **커스텀 폰트**: Pretendard, SUIT (모든 굵기 지원)
+- **폰트/asset 등록**: `pubspec.yaml`에 이미 등록되어 있음
 
 ## 🚀 시작하기
 
@@ -74,6 +76,8 @@ flutter pub get
 ```bash
 flutter run
 ```
+
+> **참고:** Pretendard/SUIT 폰트와 SVG asset은 모두 저장소에 포함되어 있습니다. 별도 추가 작업 없이 바로 실행 가능합니다.
 
 ## 👨‍💻 개발팀
 
