@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../screens/review_screen.dart';
 
 class HomeReviewSection extends StatelessWidget {
   const HomeReviewSection({super.key});
@@ -18,17 +19,49 @@ class HomeReviewSection extends StatelessWidget {
         'content': '실무에 바로 쓸 수 있는 팁이 많아요.',
         'code': '001'
       },
+      {
+        'title': '인포그래픽',
+        'prof': '양땡땡 교수님',
+        'content': '실무에 바로 쓸 수 있는 팁이 많아요.',
+        'code': '001'
+      },
+      {
+        'title': '인포그래픽',
+        'prof': '양땡땡 교수님',
+        'content': '실무에 바로 쓸 수 있는 팁이 많아요.',
+        'code': '001'
+      },
+      {
+        'title': '인포그래픽',
+        'prof': '양땡땡 교수님',
+        'content': '실무에 바로 쓸 수 있는 팁이 많아요.',
+        'code': '001'
+      },
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          '강의 후기',
-          style: TextStyle(
-            fontFamily: 'Pretendard',
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: Color(0xFF06003A),
+        GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReviewScreen()),
+            );
+          },
+          child: const Row(
+            children: [
+              Text(
+                '강의 후기',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  color: Color(0xFF06003A),
+                ),
+              ),
+              SizedBox(width: 4),
+              Icon(Icons.chevron_right, size: 24, color: Color(0xFF06003A)),
+            ],
           ),
         ),
         const SizedBox(height: 8),
@@ -41,7 +74,7 @@ class HomeReviewSection extends StatelessWidget {
             color: Color(0x4D06003A), // 30% opacity
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         Column(
           children: List.generate(reviews.length, (i) {
             final r = reviews[i];
@@ -55,7 +88,7 @@ class HomeReviewSection extends StatelessWidget {
               ),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
@@ -72,19 +105,18 @@ class HomeReviewSection extends StatelessWidget {
                             r['title']!,
                             style: const TextStyle(
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
                               color: Color(0xFF06003A),
                             ),
                           ),
-                          const SizedBox(height: 6),
                           if ((r['code'] ?? '').isNotEmpty)
                             Text(
                               r['code']!,
                               style: const TextStyle(
                                 fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w500,
-                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
                                 color: Color(0xFFB6B0C3),
                               ),
                             ),
@@ -97,8 +129,8 @@ class HomeReviewSection extends StatelessWidget {
                         r['prof']!,
                         style: const TextStyle(
                           fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
                           color: Color(0xFFB6B0C3),
                         ),
                         textAlign: TextAlign.right,

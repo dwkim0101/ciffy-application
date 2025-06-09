@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
                 const TodayClassBox(),
                 const TimetableGrid(),
                 const HomeReviewSection(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 10),
               ],
             ),
           ),
