@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/services.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 상태바(시스템 네비게이션 바) 색상 항상 검정색으로 고정
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // 배경 투명
+      statusBarIconBrightness: Brightness.dark, // 아이콘 검정
+      statusBarBrightness: Brightness.light, // iOS용
+    ));
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3F1),
       body: SafeArea(
