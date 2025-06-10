@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'timetable/timetable_intro.dart';
 import 'timetable/timetable_q1.dart';
 import 'timetable/timetable_q2.dart';
+import 'timetable/timetable_q3.dart';
+import 'timetable/timetable_q4.dart';
 import 'timetable/timetable_survey_data.dart';
+import 'timetable/timetable_q6to9.dart';
 
 class TimeTableScreen extends StatefulWidget {
   const TimeTableScreen({super.key});
@@ -33,6 +36,48 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
     });
   }
 
+  void _goToQ3() {
+    setState(() {
+      _surveyStep = 3;
+    });
+  }
+
+  void _goToQ4() {
+    setState(() {
+      _surveyStep = 4;
+    });
+  }
+
+  void _goToQ5() {
+    setState(() {
+      _surveyStep = 5;
+    });
+  }
+
+  void _goToQ6() {
+    setState(() {
+      _surveyStep = 6;
+    });
+  }
+
+  void _goToQ7() {
+    setState(() {
+      _surveyStep = 7;
+    });
+  }
+
+  void _goToQ8() {
+    setState(() {
+      _surveyStep = 8;
+    });
+  }
+
+  void _goToQ9() {
+    setState(() {
+      _surveyStep = 9;
+    });
+  }
+
   void _onSurveyDataChanged(TimeTableSurveyData data) {
     // 필요시 setState로 갱신
     setState(() {});
@@ -55,8 +100,71 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
           data: _surveyData,
           onCancel: _goToIntro,
           onPrev: _goToQ1,
-          onNext: () {}, // TODO: Q3로 이동
+          onNext: _goToQ3,
           onChanged: _onSurveyDataChanged,
+        );
+      case 3:
+        return TimetableQ3(
+          data: _surveyData,
+          onCancel: _goToIntro,
+          onPrev: _goToQ2,
+          onNext: _goToQ4,
+          onChanged: _onSurveyDataChanged,
+        );
+      case 4:
+        return TimetableQ4(
+          data: _surveyData,
+          onCancel: _goToIntro,
+          onPrev: _goToQ3,
+          onNext: _goToQ6,
+          onChanged: _onSurveyDataChanged,
+        );
+      case 5:
+        // TODO: Q5 구현
+        return Container();
+      case 6:
+        return TimetableQ6to9(
+          question: '과제 분량은 어느 정도를 선호하시나요?',
+          options: const ['적을수록 좋다', '적당한 것이 좋다', '많을수록 좋다'],
+          progress: 0.6,
+          value: _surveyData.q6Answer,
+          onChanged: (v) => setState(() => _surveyData.q6Answer = v),
+          onPrev: _goToQ5,
+          onNext: _goToQ7,
+          onCancel: _goToIntro,
+        );
+      case 7:
+        return TimetableQ6to9(
+          question: '출석 확인 방식은 어느 것을 선호하시나요?',
+          options: const ['전자출결', '직접 호명', '상관 없다'],
+          progress: 0.7,
+          value: _surveyData.q7Answer,
+          onChanged: (v) => setState(() => _surveyData.q7Answer = v),
+          onPrev: _goToQ6,
+          onNext: _goToQ8,
+          onCancel: _goToIntro,
+        );
+      case 8:
+        return TimetableQ6to9(
+          question: '선호하는 시험 개수의 정도를 알려주세요',
+          options: const ['최대한 적은 것이 좋다', '보통', '많을수록 좋다'],
+          progress: 0.8,
+          value: _surveyData.q8Answer,
+          onChanged: (v) => setState(() => _surveyData.q8Answer = v),
+          onPrev: _goToQ7,
+          onNext: _goToQ9,
+          onCancel: _goToIntro,
+        );
+      case 9:
+        return TimetableQ6to9(
+          question: '팀플은 얼마나 선호하시나요?',
+          options: const ['선호하지 않는다', '보통', '매우 선호한다'],
+          progress: 0.9,
+          value: _surveyData.q9Answer,
+          onChanged: (v) => setState(() => _surveyData.q9Answer = v),
+          onPrev: _goToQ8,
+          onNext: () {}, // TODO: Q10로 이동
+          onCancel: _goToIntro,
         );
       default:
         return TimetableIntro(onStartSurvey: _goToQ1);
