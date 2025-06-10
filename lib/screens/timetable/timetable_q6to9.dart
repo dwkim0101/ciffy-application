@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../timetable/timetable_survey_data.dart';
+import 'timetable_q2.dart';
 
 class TimetableQ6to9 extends StatelessWidget {
   final String question;
@@ -85,15 +86,29 @@ class TimetableQ6to9 extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            // Q6~Q9 텍스트(상단)
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+              child: Text(
+                'Q${(progress * 10).round()}',
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  color: Color(0xFF9B98AC),
+                ),
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 0),
               child: Text(
                 question,
                 style: const TextStyle(
                   fontFamily: 'Pretendard',
                   fontWeight: FontWeight.w700,
-                  fontSize: 18,
+                  fontSize: 20,
                   color: Color(0xFF06003A),
                 ),
               ),
@@ -103,14 +118,14 @@ class TimetableQ6to9 extends StatelessWidget {
                 options.length,
                 (i) => Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 6),
+                          horizontal: 24, vertical: 12),
                       child: GestureDetector(
                         onTap: () => onChanged(i),
                         child: Row(
                           children: [
                             Container(
-                              width: 20,
-                              height: 20,
+                              width: 24,
+                              height: 24,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
@@ -125,18 +140,19 @@ class TimetableQ6to9 extends StatelessWidget {
                               ),
                               child: value == i
                                   ? const Icon(Icons.circle,
-                                      size: 12, color: Colors.white)
+                                      size: 14, color: Colors.white)
                                   : null,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 16),
                             Text(
                               options[i],
                               style: TextStyle(
                                 fontFamily: 'Pretendard',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                height: 1.4,
                                 color: value == i
-                                    ? const Color(0xFF6178FA)
+                                    ? const Color(0xFF06003A)
                                     : const Color(0xFFB6B1C2),
                               ),
                             ),
@@ -147,58 +163,9 @@ class TimetableQ6to9 extends StatelessWidget {
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 44,
-                      child: ElevatedButton(
-                        onPressed: onPrev,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFC8C6D1),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          '이전',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 44,
-                      child: ElevatedButton(
-                        onPressed: onNext,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF06003A),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: const Text(
-                          '다음',
-                          style: TextStyle(
-                            fontFamily: 'Pretendard',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              child: TimetableQ2ButtonBar(
+                onPrev: onPrev,
+                onNext: onNext,
               ),
             ),
           ],

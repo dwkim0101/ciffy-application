@@ -4,8 +4,10 @@ import 'timetable/timetable_q1.dart';
 import 'timetable/timetable_q2.dart';
 import 'timetable/timetable_q3.dart';
 import 'timetable/timetable_q4.dart';
+import 'timetable/timetable_q5.dart';
 import 'timetable/timetable_survey_data.dart';
 import 'timetable/timetable_q6to9.dart';
+import 'timetable/timetable_q10.dart';
 
 class TimeTableScreen extends StatefulWidget {
   const TimeTableScreen({super.key});
@@ -78,6 +80,12 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
     });
   }
 
+  void _goToQ10() {
+    setState(() {
+      _surveyStep = 10;
+    });
+  }
+
   void _onSurveyDataChanged(TimeTableSurveyData data) {
     // 필요시 setState로 갱신
     setState(() {});
@@ -116,12 +124,17 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
           data: _surveyData,
           onCancel: _goToIntro,
           onPrev: _goToQ3,
-          onNext: _goToQ6,
+          onNext: _goToQ5,
           onChanged: _onSurveyDataChanged,
         );
       case 5:
-        // TODO: Q5 구현
-        return Container();
+        return TimetableQ5(
+          data: _surveyData,
+          onCancel: _goToIntro,
+          onPrev: _goToQ4,
+          onNext: _goToQ6,
+          onChanged: _onSurveyDataChanged,
+        );
       case 6:
         return TimetableQ6to9(
           question: '과제 분량은 어느 정도를 선호하시나요?',
@@ -163,8 +176,16 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
           value: _surveyData.q9Answer,
           onChanged: (v) => setState(() => _surveyData.q9Answer = v),
           onPrev: _goToQ8,
-          onNext: () {}, // TODO: Q10로 이동
+          onNext: _goToQ10,
           onCancel: _goToIntro,
+        );
+      case 10:
+        return TimetableQ10(
+          data: _surveyData,
+          onCancel: _goToIntro,
+          onPrev: _goToQ9,
+          onFinish: () {}, // TODO: 완료 처리
+          onChanged: _onSurveyDataChanged,
         );
       default:
         return TimetableIntro(onStartSurvey: _goToQ1);

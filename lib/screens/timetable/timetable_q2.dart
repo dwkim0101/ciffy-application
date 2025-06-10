@@ -413,8 +413,13 @@ class TimetableQ2Grid extends StatelessWidget {
 class TimetableQ2ButtonBar extends StatelessWidget {
   final VoidCallback onPrev;
   final VoidCallback onNext;
-  const TimetableQ2ButtonBar(
-      {super.key, required this.onPrev, required this.onNext});
+  final String nextLabel;
+  const TimetableQ2ButtonBar({
+    super.key,
+    required this.onPrev,
+    required this.onNext,
+    this.nextLabel = '다음',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -462,9 +467,9 @@ class TimetableQ2ButtonBar extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
-                  '다음',
-                  style: TextStyle(
+                child: Text(
+                  nextLabel,
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w600,
                     fontSize: 16,

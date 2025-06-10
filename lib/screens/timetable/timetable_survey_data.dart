@@ -7,12 +7,15 @@ class TimeTableSurveyData {
   List<Map<String, String?>> mustLectures;
   // Q4: 전공 필수 과목 개수
   int majorRequiredCount;
+  // Q5: 희망 전공 과목
+  List<Map<String, String?>> majorWishLectures;
   // Q6~Q9: 객관식 답변 인덱스
   int q6Answer;
   int q7Answer;
   int q8Answer;
   int q9Answer;
-  // TODO: Q10 데이터 필드 추가
+  // Q10: 선호 교수님
+  List<String> preferredProfessors;
 
   TimeTableSurveyData({
     List<Map<String, String?>>? preAppliedLectures,
@@ -23,15 +26,19 @@ class TimeTableSurveyData {
     int? q7Answer,
     int? q8Answer,
     int? q9Answer,
+    List<String>? preferredProfessors,
+    List<Map<String, String?>>? majorWishLectures,
   })  : preAppliedLectures = preAppliedLectures ?? [],
         unavailableTimes =
             unavailableTimes ?? List.generate(19, (_) => List.filled(5, false)),
         mustLectures = mustLectures ?? [],
+        majorWishLectures = majorWishLectures ?? [],
         majorRequiredCount = majorRequiredCount ?? 0,
         q6Answer = q6Answer ?? -1,
         q7Answer = q7Answer ?? -1,
         q8Answer = q8Answer ?? -1,
-        q9Answer = q9Answer ?? -1;
+        q9Answer = q9Answer ?? -1,
+        preferredProfessors = preferredProfessors ?? [];
 
   factory TimeTableSurveyData.fromJson(Map<String, dynamic> json) {
     return TimeTableSurveyData(
@@ -49,6 +56,17 @@ class TimeTableSurveyData {
       q7Answer: json['q7Answer'] ?? -1,
       q8Answer: json['q8Answer'] ?? -1,
       q9Answer: json['q9Answer'] ?? -1,
+      preferredProfessors: (json['preferredProfessors'] is List)
+          ? (json['preferredProfessors'] as List)
+              .map((e) => e.toString())
+              .toList()
+          : [],
+      majorWishLectures: (json['majorWishLectures'] is List)
+          ? (json['majorWishLectures'] as List)
+              .whereType<Map>()
+              .map((e) => Map<String, String?>.from(e))
+              .toList()
+          : [],
     );
   }
 
@@ -61,6 +79,8 @@ class TimeTableSurveyData {
     int? q7Answer,
     int? q8Answer,
     int? q9Answer,
+    List<String>? preferredProfessors,
+    List<Map<String, String?>>? majorWishLectures,
   }) {
     return TimeTableSurveyData(
       preAppliedLectures: preAppliedLectures ?? this.preAppliedLectures,
@@ -71,6 +91,10 @@ class TimeTableSurveyData {
       q7Answer: q7Answer ?? this.q7Answer ?? -1,
       q8Answer: q8Answer ?? this.q8Answer ?? -1,
       q9Answer: q9Answer ?? this.q9Answer ?? -1,
+      preferredProfessors: preferredProfessors ?? this.preferredProfessors,
+      majorWishLectures: (majorWishLectures != null)
+          ? majorWishLectures
+          : this.majorWishLectures,
     );
   }
 
