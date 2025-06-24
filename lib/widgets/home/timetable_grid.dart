@@ -1,7 +1,35 @@
 import 'package:flutter/material.dart';
 
 class TimetableGrid extends StatelessWidget {
-  const TimetableGrid({super.key});
+  final List<Map<String, dynamic>> lectures;
+  const TimetableGrid(
+      {super.key,
+      this.lectures = const [
+        {
+          'title': '인도의정치경제와사회',
+          'room': '집401',
+          'professor': '이지은',
+          'day': 0, // 월
+          'start': '09:00',
+          'end': '10:30',
+        },
+        {
+          'title': '그래픽디자인1',
+          'room': '302',
+          'professor': '김철수',
+          'day': 1, // 화
+          'start': '10:00',
+          'end': '11:30',
+        },
+        {
+          'title': '스마트UX&UI디자인1',
+          'room': '302',
+          'professor': '박영희',
+          'day': 0, // 월
+          'start': '13:00',
+          'end': '14:30',
+        },
+      ]});
 
   // 30분 단위 타임슬롯 생성 (9:00~18:00, 18:00 포함)
   static final List<String> timeSlots = List.generate(19, (i) {
@@ -20,34 +48,6 @@ class TimetableGrid extends StatelessWidget {
 
   // 요일
   static const List<String> days = ['월', '화', '수', '목', '금'];
-
-  // 샘플 강의 데이터
-  final List<Map<String, dynamic>> lectures = const [
-    {
-      'title': '인도의정치경제와사회',
-      'room': '집401',
-      'professor': '이지은',
-      'day': 0, // 월
-      'start': '09:00',
-      'end': '10:30',
-    },
-    {
-      'title': '그래픽디자인1',
-      'room': '302',
-      'professor': '김철수',
-      'day': 1, // 화
-      'start': '10:00',
-      'end': '11:30',
-    },
-    {
-      'title': '스마트UX&UI디자인1',
-      'room': '302',
-      'professor': '박영희',
-      'day': 0, // 월
-      'start': '13:00',
-      'end': '14:30',
-    },
-  ];
 
   // 시간 문자열을 인덱스로 변환
   int timeToIndex(String time) {

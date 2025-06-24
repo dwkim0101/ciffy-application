@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../timetable/timetable_survey_data.dart';
 import 'timetable_q2.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TimetableQ5 extends StatefulWidget {
   final TimeTableSurveyData data;
@@ -82,8 +83,11 @@ class _TimetableQ5State extends State<TimetableQ5> {
                 children: [
                   GestureDetector(
                     onTap: widget.onCancel,
-                    child: const Icon(Icons.close,
-                        size: 28, color: Color(0xFF06003A)),
+                    child: SvgPicture.asset(
+                      'assets/cancel.svg',
+                      width: 20,
+                      height: 20,
+                    ),
                   ),
                 ],
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../timetable/timetable_survey_data.dart';
 import 'timetable_q2.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TimetableQ4 extends StatefulWidget {
   final TimeTableSurveyData data;
@@ -53,8 +54,11 @@ class _TimetableQ4State extends State<TimetableQ4> {
                 children: [
                   GestureDetector(
                     onTap: widget.onCancel,
-                    child: const Icon(Icons.close,
-                        size: 28, color: Color(0xFF160095)),
+                    child: SvgPicture.asset(
+                      'assets/cancel.svg',
+                      width: 20,
+                      height: 20,
+                    ),
                   ),
                 ],
               ),
@@ -68,7 +72,7 @@ class _TimetableQ4State extends State<TimetableQ4> {
                     child: Container(
                       height: 5,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFD9D7E0),
+                        color: const Color(0x1A06003A),
                         borderRadius: BorderRadius.circular(7),
                       ),
                       child: Align(
@@ -78,7 +82,7 @@ class _TimetableQ4State extends State<TimetableQ4> {
                           child: Container(
                             height: 5,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF160095),
+                              color: const Color(0xFF06003A),
                               borderRadius: BorderRadius.circular(7),
                             ),
                           ),
@@ -93,7 +97,7 @@ class _TimetableQ4State extends State<TimetableQ4> {
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
-                      color: Color(0x994D4D4D),
+                      color: Color(0x4D000000),
                     ),
                   ),
                 ],

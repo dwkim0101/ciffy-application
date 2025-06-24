@@ -8,6 +8,8 @@ import 'timetable/timetable_q5.dart';
 import 'timetable/timetable_survey_data.dart';
 import 'timetable/timetable_q6to9.dart';
 import 'timetable/timetable_q10.dart';
+import 'timetable/timetable_test_complete.dart';
+import 'timetable/timetable_result_screen.dart';
 
 class TimeTableScreen extends StatefulWidget {
   const TimeTableScreen({super.key});
@@ -83,6 +85,12 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
   void _goToQ10() {
     setState(() {
       _surveyStep = 10;
+    });
+  }
+
+  void _goToTestComplete() {
+    setState(() {
+      _surveyStep = 11;
     });
   }
 
@@ -184,9 +192,14 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
           data: _surveyData,
           onCancel: _goToIntro,
           onPrev: _goToQ9,
-          onFinish: () {}, // TODO: 완료 처리
+          onFinish: _goToTestComplete,
           onChanged: _onSurveyDataChanged,
         );
+      case 11:
+        return TimetableTestComplete(
+            onComplete: () => setState(() => _surveyStep = 12));
+      case 12:
+        return const TimetableResultScreen();
       default:
         return TimetableIntro(onStartSurvey: _goToQ1);
     }

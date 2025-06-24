@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../timetable/timetable_survey_data.dart';
 import 'timetable_q2.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class TimetableQ6to9 extends StatelessWidget {
   final String question;
@@ -39,8 +40,11 @@ class TimetableQ6to9 extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: onCancel,
-                    child: const Icon(Icons.close,
-                        size: 28, color: Color(0xFF06003A)),
+                    child: SvgPicture.asset(
+                      'assets/cancel.svg',
+                      width: 20,
+                      height: 20,
+                    ),
                   ),
                 ],
               ),
