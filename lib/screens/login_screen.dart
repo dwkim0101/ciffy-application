@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import '../widgets/bottom_bar.dart';
 import '../api/auth_api.dart';
 import '../api/secure_storage.dart';
+import '../api/lecture_api.dart';
+
+class LectureStore {
+  static List<Map<String, dynamic>> lectures = [];
+}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,167 +19,90 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isFormValid = false;
+  final RoundedLoadingButtonController _btnController =
+      RoundedLoadingButtonController();
   bool _isSaved = false;
-  late final FocusNode _idFocusNode;
-  late final FocusNode _pwFocusNode;
 
-  @override
-  void initState() {
-    super.initState();
-    _idFocusNode = FocusNode();
-    _pwFocusNode = FocusNode();
-    _idController.addListener(_validateForm);
-    _passwordController.addListener(_validateForm);
-  }
+  bool get _isFormValid =>
+      _idController.text.trim().isNotEmpty &&
+      _passwordController.text.trim().isNotEmpty;
 
   @override
   void dispose() {
     _idController.dispose();
     _passwordController.dispose();
-    _idFocusNode.dispose();
-    _pwFocusNode.dispose();
     super.dispose();
   }
 
-  void _validateForm() {
-    setState(() {
-      _isFormValid =
-          _idController.text.isNotEmpty && _passwordController.text.isNotEmpty;
-    });
+  Future<void> _onLogin() async {
+    _btnController.start();
+    final token = await AuthApi.login(
+      id: _idController.text.trim(),
+      password: _passwordController.text.trim(),
+    );
+    if (token != null) {
+      await SecureStorage.saveToken(token);
+      // 강의 목록 불러오기
+      final lectures = await LectureApi.fetchLectures();
+      LectureStore.lectures = lectures;
+      _btnController.success();
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomBar()),
+        );
+      }
+    } else {
+      _btnController.error();
+      await Future.delayed(const Duration(seconds: 1));
+      _btnController.reset();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.'),
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: const Color(0xFFF5F3F1),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 42.0, vertical: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 32),
-              SvgPicture.asset(
-                'assets/Logo.svg',
-                width: 120,
-                height: 28,
-              ),
-              const SizedBox(height: 24),
-              Text(
+              const SizedBox(height: 80),
+              const Text(
                 '로그인',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 28,
+                  color: Color(0xFF06003A),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                '세종대학교 포털 계정으로 로그인하세요!',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.textTheme.bodyMedium?.color?.withOpacity(0.6),
-                ),
-              ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               TextField(
                 controller: _idController,
-                focusNode: _idFocusNode,
-                decoration: InputDecoration(
-                  hintText: '아이디',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFB6B0C3),
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  filled: true,
-                  fillColor:
-                      (!_idFocusNode.hasFocus && _idController.text.isEmpty)
-                          ? const Color.fromRGBO(6, 0, 58, 0.05)
-                          : Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFB6B0C3),
-                      width: 1.5,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFB6B0C3),
-                      width: 1.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF160095),
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-                style: TextStyle(
-                  color: _idController.text.isEmpty
-                      ? const Color(0xFFB6B0C3)
-                      : const Color(0xFF160095),
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
+                decoration: const InputDecoration(
+                  labelText: '아이디',
+                  border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               TextField(
                 controller: _passwordController,
-                focusNode: _pwFocusNode,
                 obscureText: true,
-                decoration: InputDecoration(
-                  hintText: '비밀번호',
-                  hintStyle: const TextStyle(
-                    color: Color(0xFFB6B0C3),
-                    fontFamily: 'Pretendard',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  filled: true,
-                  fillColor: (!_pwFocusNode.hasFocus &&
-                          _passwordController.text.isEmpty)
-                      ? const Color.fromRGBO(6, 0, 58, 0.05)
-                      : Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFB6B0C3),
-                      width: 1.5,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFB6B0C3),
-                      width: 1.5,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                      color: Color(0xFF160095),
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                ),
-                style: TextStyle(
-                  color: _passwordController.text.isEmpty
-                      ? const Color(0xFFB6B0C3)
-                      : const Color(0xFF160095),
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
+                decoration: const InputDecoration(
+                  labelText: '비밀번호',
+                  border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 18),
@@ -192,15 +120,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             _isSaved = value ?? false;
                           });
                         },
-                        activeColor: const Color(0xFF160095), // 체크 시 배경
-                        checkColor: Colors.white, // 체크마크 색상
+                        activeColor: const Color(0xFF160095),
+                        checkColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4),
                         ),
                         side: BorderSide(
                           color: _isSaved
                               ? const Color(0xFF160095)
-                              : const Color(0xFFB6B0C3), // 체크 안됐을 때 테두리
+                              : const Color(0xFFB6B0C3),
                           width: 1.5,
                         ),
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -222,54 +150,25 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 height: 56,
-                child: ElevatedButton(
-                  onPressed: _isFormValid
-                      ? () async {
-                          final token = await AuthApi.login(
-                            id: _idController.text.trim(),
-                            password: _passwordController.text.trim(),
-                          );
-                          if (token != null) {
-                            await SecureStorage.saveToken(token);
-                            // 로그인 성공 시 홈 화면으로 이동
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const BottomBar()),
-                            );
-                          } else {
-                            // 로그인 실패 시 에러 메시지
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.'),
-                              ),
-                            );
-                          }
-                        }
-                      : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _isFormValid
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.primary.withOpacity(0.5),
-                    foregroundColor: Colors.white,
-                    disabledForegroundColor:
-                        Colors.white, // Ensure text remains white when disabled
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
-                  child: Text(
-                    '로그인 하기',
-                    style: theme.textTheme.bodyLarge?.copyWith(
+                child: RoundedLoadingButton(
+                  controller: _btnController,
+                  color: const Color(0xFF06003A),
+                  successColor: Colors.green,
+                  errorColor: Colors.red,
+                  borderRadius: 12,
+                  onPressed: _isFormValid ? _onLogin : null,
+                  child: const Text(
+                    '로그인',
+                    style: TextStyle(
+                      fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w600,
-                      letterSpacing: -0.5,
+                      fontSize: 18,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 130),
+              const SizedBox(height: 40),
             ],
           ),
         ),
