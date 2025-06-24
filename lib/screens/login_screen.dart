@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../widgets/bottom_bar.dart';
+import '../api/auth_api.dart';
+import '../api/secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -221,14 +223,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // 로그인 성공 시 홈 화면으로 이동
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const BottomBar()),
-                    );
-                  },
+                  onPressed: _isFormValid
+                      ? () async {
+                          final token = await AuthApi.login(
+                            id: _idController.text.trim(),
+                            password: _passwordController.text.trim(),
+                          );
+                          if (token != null) {
+                            await SecureStorage.saveToken(token);
+                            // 로그인 성공 시 홈 화면으로 이동
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const BottomBar()),
+                            );
+                          } else {
+                            // 로그인 실패 시 에러 메시지
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('로그인에 실패했습니다. 아이디/비밀번호를 확인하세요.'),
+                              ),
+                            );
+                          }
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isFormValid
                         ? theme.colorScheme.primary

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'screens/start_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/schedule_screen.dart';
+import 'widgets/bottom_bar.dart';
+import 'api/secure_storage.dart';
 
 void main() {
   runApp(const MyApp());
@@ -93,13 +95,41 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      initialRoute: '/start',
-      routes: {
-        '/start': (context) => const StartScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/timetable': (context) => const TimeTableScreen(),
-        '/schedule': (context) => const ScheduleScreen(),
-      },
+      home: const RootScreen(),
     );
+  }
+}
+
+class RootScreen extends StatefulWidget {
+  const RootScreen({super.key});
+
+  @override
+  State<RootScreen> createState() => _RootScreenState();
+}
+
+class _RootScreenState extends State<RootScreen> {
+  bool? _isLoggedIn;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final token = await SecureStorage.getToken();
+    setState(() {
+      _isLoggedIn = token != null && token.isNotEmpty;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoggedIn == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return _isLoggedIn! ? const BottomBar() : const LoginScreen();
   }
 }

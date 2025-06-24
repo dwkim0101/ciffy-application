@@ -199,7 +199,7 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
         return TimetableTestComplete(
             onComplete: () => setState(() => _surveyStep = 12));
       case 12:
-        return const TimetableResultScreen();
+        return TimetableResultScreen(onRestartSurvey: _goToIntro);
       default:
         return TimetableIntro(onStartSurvey: _goToQ1);
     }

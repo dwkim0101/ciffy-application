@@ -5,6 +5,8 @@ import '../screens/graduation_analysis_screen.dart';
 import '../screens/timetable_screen.dart';
 import '../screens/review_screen.dart';
 import '../screens/mypage_screen.dart';
+import '../screens/login_screen.dart';
+import '../api/secure_storage.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({Key? key}) : super(key: key);
@@ -15,6 +17,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   int _selectedIndex = 0;
+  bool _checkingLogin = true;
 
   final List<Map<String, String>> _tabs = [
     {'label': '홈', 'icon': 'assets/bottom_bar/home.svg'},
@@ -31,6 +34,28 @@ class _BottomBarState extends State<BottomBar> {
     const MyPageScreen(),
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _checkLogin();
+  }
+
+  Future<void> _checkLogin() async {
+    final token = await SecureStorage.getToken();
+    if (token == null || token.isEmpty) {
+      if (mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false,
+        );
+      }
+    } else {
+      setState(() {
+        _checkingLogin = false;
+      });
+    }
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -39,6 +64,9 @@ class _BottomBarState extends State<BottomBar> {
 
   @override
   Widget build(BuildContext context) {
+    if (_checkingLogin) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
