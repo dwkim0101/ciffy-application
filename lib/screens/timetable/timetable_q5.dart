@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../timetable/timetable_survey_data.dart';
 import 'timetable_q2.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../api/lecture_api.dart';
+import '../login_screen.dart';
+import 'package:provider/provider.dart';
+import '../../api/lecture_api.dart';
 
 class TimetableQ5 extends StatefulWidget {
   final TimeTableSurveyData data;
@@ -23,7 +27,10 @@ class TimetableQ5 extends StatefulWidget {
 }
 
 class _TimetableQ5State extends State<TimetableQ5> {
-  late List<Map<String, String?>> lectures;
+  late List<Map<String, String?>> selectedLectures;
+  late TextEditingController _searchController;
+  List<Map<String, dynamic>> _filteredLectures = [];
+  final String _selectedProfessor = '전체';
 
   @override
   void initState() {
@@ -31,44 +38,126 @@ class _TimetableQ5State extends State<TimetableQ5> {
     final wishLectures = (widget.data.majorWishLectures is List)
         ? widget.data.majorWishLectures
         : [];
-    lectures = List<Map<String, String?>>.from(
-      (wishLectures.isNotEmpty)
-          ? wishLectures
-          : [
-              {'name': '', 'professor': null}
-            ],
-    );
+    selectedLectures = (wishLectures.isNotEmpty)
+        ? List<Map<String, String?>>.from(wishLectures)
+        : [];
+    _searchController = TextEditingController();
+    _searchController.addListener(_onSearchFocusOrChange);
   }
 
-  void _addLecture() {
+  void _onSearchFocusOrChange() {
+    if (_searchFocusNode.hasFocus && _searchController.text.trim().isEmpty) {
+      setState(() {
+        _filteredLectures = _majorLecturesWithCourseName(context)
+            .where((lec) => !selectedLectures.any((sel) =>
+                sel['id'] == lec['lecture'].id &&
+                sel['classId'] == lec['lecture'].classId &&
+                sel['professor'] == lec['lecture'].professor))
+            .toList();
+      });
+    }
+  }
+
+  final FocusNode _searchFocusNode = FocusNode();
+
+  void _applyFilter() {
     setState(() {
-      lectures.add({'name': '', 'professor': null});
+      Iterable<Map<String, dynamic>> list =
+          _majorLecturesWithCourseName(context).where((lec) =>
+              !selectedLectures.any((sel) =>
+                  sel['id'] == lec['lecture'].id &&
+                  sel['classId'] == lec['lecture'].classId &&
+                  sel['professor'] == lec['lecture'].professor));
+      if (_selectedProfessor != '전체') {
+        list =
+            list.where((lec) => lec['lecture'].professor == _selectedProfessor);
+      }
+      _filteredLectures = list.toList();
+    });
+  }
+
+  void _updateLectureName(String value) {
+    setState(() {
+      Iterable<Map<String, dynamic>> list =
+          _majorLecturesWithCourseName(context).where((lec) =>
+              !selectedLectures.any((sel) =>
+                  sel['id'] == lec['lecture'].id &&
+                  sel['classId'] == lec['lecture'].classId &&
+                  sel['professor'] == lec['lecture'].professor));
+      if (_selectedProfessor != '전체') {
+        list =
+            list.where((lec) => lec['lecture'].professor == _selectedProfessor);
+      }
+      if (value.trim().isEmpty) {
+        if (_searchFocusNode.hasFocus) {
+          _filteredLectures = list
+              .where((lec) => !selectedLectures.any((sel) =>
+                  sel['id'] == lec['lecture'].id &&
+                  sel['classId'] == lec['lecture'].classId &&
+                  sel['professor'] == lec['lecture'].professor))
+              .toList();
+        } else {
+          _filteredLectures = [];
+        }
+      } else if (value.trim().length < 2) {
+        _filteredLectures = [];
+      } else {
+        final query = value.trim().toLowerCase().replaceAll(' ', '');
+        _filteredLectures = list
+            .where((lec) => lec['courseName']
+                .replaceAll(' ', '')
+                .toLowerCase()
+                .contains(query))
+            .where((lec) => !selectedLectures.any((sel) =>
+                sel['id'] == lec['lecture'].id &&
+                sel['classId'] == lec['lecture'].classId &&
+                sel['professor'] == lec['lecture'].professor))
+            .toList();
+      }
+    });
+  }
+
+  void _selectLecture(Map<String, dynamic> lec) {
+    setState(() {
+      selectedLectures.add({
+        'id': lec['lecture'].id,
+        'name': '${lec['courseName']} - ${lec['lecture'].classId}분반',
+        'classId': lec['lecture'].classId,
+        'professor': lec['lecture'].professor,
+        'time': lec['lecture'].time,
+      });
+      _searchController.clear();
+      _filteredLectures = [];
       _notifyChange();
     });
   }
 
-  void _updateLectureName(int idx, String value) {
+  void _removeLecture(int idx) {
     setState(() {
-      lectures[idx]['name'] = value;
-      _notifyChange();
-    });
-  }
-
-  void _updateLectureProfessor(int idx, String? value) {
-    setState(() {
-      lectures[idx]['professor'] = value;
+      selectedLectures.removeAt(idx);
       _notifyChange();
     });
   }
 
   void _notifyChange() {
     widget.onChanged(widget.data
-      ..majorWishLectures = List<Map<String, String?>>.from(lectures));
+      ..majorWishLectures = List<Map<String, String?>>.from(selectedLectures));
+  }
+
+  List<Map<String, dynamic>> _majorLecturesWithCourseName(
+      BuildContext context) {
+    final courses = context.watch<CourseProvider>().courses;
+    final major = UserStore.user?.major ?? '';
+    return courses
+        .where((c) =>
+            (c.type == '전공필수' || c.type == '전공선택') && c.mandatory == major)
+        .expand(
+            (c) => c.lectures.map((l) => {'lecture': l, 'courseName': c.name}))
+        .toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final professors = ['교수A', '교수B', '교수C', '교수D'];
     return Scaffold(
       backgroundColor: const Color(0xFFF5F3F1),
       body: SafeArea(
@@ -158,140 +247,163 @@ class _TimetableQ5State extends State<TimetableQ5> {
               ),
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F1F3),
-                    borderRadius: BorderRadius.circular(16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: TextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                onChanged: _updateLectureName,
+                onTap: () {
+                  if (_searchController.text.trim().isEmpty) {
+                    setState(() {
+                      _filteredLectures = _majorLecturesWithCourseName(context)
+                          .where((lec) => !selectedLectures.any((sel) =>
+                              sel['id'] == lec['lecture'].id &&
+                              sel['classId'] == lec['lecture'].classId &&
+                              sel['professor'] == lec['lecture'].professor))
+                          .toList();
+                    });
+                  }
+                },
+                decoration: InputDecoration(
+                  hintText: '강의명 또는 강의명-분반을 입력하세요',
+                  hintStyle: const TextStyle(
+                    fontFamily: 'Pretendard',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                    color: Color(0xFFB6B1C2),
                   ),
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                '강의명',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Color(0xFF7B7684),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                '교수님',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Color(0xFF7B7684),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ...lectures.asMap().entries.map((entry) {
-                        final idx = entry.key;
-                        final lecture = entry.value;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    hintText: '강의명을 입력하세요',
-                                    hintStyle: const TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                      color: Color(0xFFB6B1C2),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 14),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                  onChanged: (v) => _updateLectureName(idx, v),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: DropdownButtonFormField<String>(
-                                  value: lecture['professor'],
-                                  items: [
-                                    const DropdownMenuItem(
-                                      value: null,
-                                      child: Text('선택',
-                                          style: TextStyle(
-                                              color: Color(0xFFB6B1C2))),
-                                    ),
-                                    ...professors.map((s) => DropdownMenuItem(
-                                          value: s,
-                                          child: Text(s),
-                                        )),
-                                  ],
-                                  onChanged: (v) =>
-                                      _updateLectureProfessor(idx, v),
-                                  decoration: InputDecoration(
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 14),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(left: 16, top: 8, bottom: 8),
-                        child: GestureDetector(
-                          onTap: _addLecture,
-                          child: const Row(
-                            children: [
-                              Icon(Icons.add,
-                                  color: Color(0xFF6178FA), size: 20),
-                              SizedBox(width: 4),
-                              Text(
-                                '강의 추가',
-                                style: TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14,
-                                  color: Color(0xFF6178FA),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                    ],
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+            // 선택된 강의 카드 리스트
+            if (selectedLectures.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (int i = 0; i < selectedLectures.length; i++)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFE0E0E0)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedLectures[i]['name'] ?? '',
+                                  style: const TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    color: Color(0xFF06003A),
+                                  ),
+                                ),
+                                if ((selectedLectures[i]['professor'] ?? '')
+                                        .isNotEmpty ||
+                                    (selectedLectures[i]['time'] ?? '')
+                                        .isNotEmpty)
+                                  Text(
+                                    '${selectedLectures[i]['professor'] ?? ''} · ${selectedLectures[i]['time'] ?? ''}',
+                                    style: const TextStyle(
+                                      fontFamily: 'Pretendard',
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 13,
+                                      color: Color(0xFFB6B1C2),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () => _removeLecture(i),
+                              child: const Icon(Icons.close,
+                                  size: 18, color: Color(0xFFB6B1C2)),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            // 검색 결과 카드 리스트
+            if (_filteredLectures.isNotEmpty)
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
+                child: SizedBox(
+                  height: 140,
+                  child: ListView.builder(
+                    itemCount: _filteredLectures.length,
+                    itemBuilder: (context, idx) {
+                      final lec = _filteredLectures[idx];
+                      return GestureDetector(
+                        onTap: () => _selectLecture(lec),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                            border: Border.all(color: const Color(0xFFE0E0E0)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${lec['courseName']} - ${lec['lecture'].classId}분반',
+                                style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                  color: Color(0xFF06003A),
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                '${lec['lecture'].professor} · ${lec['lecture'].time}',
+                                style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 13,
+                                  color: Color(0xFFB6B1C2),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: TimetableQ2ButtonBar(

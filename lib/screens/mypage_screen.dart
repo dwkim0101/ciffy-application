@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import '../api/secure_storage.dart';
 import 'login_screen.dart';
+import '../api/user_api.dart';
 
 class MyPageScreen extends StatelessWidget {
   const MyPageScreen({super.key});
@@ -63,9 +64,9 @@ class MyPageScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             // 이름
-            const Text(
-              '김시피님',
-              style: TextStyle(
+            Text(
+              UserStore.user?.name ?? '-',
+              style: const TextStyle(
                 fontFamily: 'Pretendard',
                 fontWeight: FontWeight.w500,
                 fontSize: 20,
@@ -86,11 +87,11 @@ class MyPageScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 child: Column(
                   children: [
-                    _infoRow('학과', '컴퓨터공학과'),
+                    _infoRow('학과', UserStore.user?.major ?? '-'),
                     const SizedBox(height: 8),
-                    _infoRow('학번', '23011111'),
+                    _infoRow('학번', UserStore.user?.studentId ?? '-'),
                     const SizedBox(height: 8),
-                    _infoRow('학기', '3-1학기'),
+                    _infoRow('학년', UserStore.user?.grade.toString() ?? '-'),
                   ],
                 ),
               ),

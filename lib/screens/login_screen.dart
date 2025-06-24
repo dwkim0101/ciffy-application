@@ -5,9 +5,14 @@ import '../widgets/bottom_bar.dart';
 import '../api/auth_api.dart';
 import '../api/secure_storage.dart';
 import '../api/lecture_api.dart';
+import '../api/user_api.dart';
 
 class LectureStore {
-  static List<Map<String, dynamic>> lectures = [];
+  static List<Lecture> lectures = [];
+}
+
+class UserStore {
+  static User? user;
 }
 
 class LoginScreen extends StatefulWidget {
@@ -54,6 +59,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
     if (token != null) {
       await SecureStorage.saveToken(token);
+      // 사용자 정보 불러오기
+      final user = await UserApi.fetchUserInfo(token);
+      UserStore.user = user;
       // 강의 목록 불러오기
       final lectures = await LectureApi.fetchLectures();
       LectureStore.lectures = lectures;
