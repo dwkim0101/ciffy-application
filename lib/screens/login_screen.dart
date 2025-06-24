@@ -6,6 +6,7 @@ import '../api/auth_api.dart';
 import '../api/secure_storage.dart';
 import '../api/lecture_api.dart';
 import '../api/user_api.dart';
+import 'package:provider/provider.dart';
 
 class LectureStore {
   static List<Lecture> lectures = [];
@@ -62,9 +63,11 @@ class _LoginScreenState extends State<LoginScreen> {
       // 사용자 정보 불러오기
       final user = await UserApi.fetchUserInfo(token);
       UserStore.user = user;
-      // 강의 목록 불러오기
-      final lectures = await LectureApi.fetchLectures();
-      LectureStore.lectures = lectures;
+      // 강의 Course 목록 불러오기 및 Provider에 저장
+      final courses = await LectureApi.fetchCourses();
+      if (mounted) {
+        Provider.of<CourseProvider>(context, listen: false).setCourses(courses);
+      }
       _btnController.success();
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {

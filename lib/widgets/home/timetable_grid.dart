@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class TimetableGrid extends StatelessWidget {
   final List<Map<String, dynamic>> lectures;
+  final EdgeInsets? padding;
   const TimetableGrid(
       {super.key,
       this.lectures = const [
@@ -29,7 +30,8 @@ class TimetableGrid extends StatelessWidget {
           'start': '13:00',
           'end': '14:30',
         },
-      ]});
+      ],
+      this.padding});
 
   // 30분 단위 타임슬롯 생성 (9:00~18:00, 18:00 포함)
   static final List<String> timeSlots = List.generate(19, (i) {
@@ -71,6 +73,7 @@ class TimetableGrid extends StatelessWidget {
       final duration = endIdx - startIdx;
       grid[startIdx][col] = {
         'title': lec['title'],
+        'professor': lec['professor'],
         'room': lec['room'],
         'duration': duration,
       };
@@ -80,31 +83,30 @@ class TimetableGrid extends StatelessWidget {
     }
 
     // 레이아웃 상수
-    const double cellHeight = 24; // 30분 단위 셀 높이, 더 넉넉하게
+    const double cellHeight = 18; // 카드 간격 넓힘
     const double timeColWidth = 32;
     const double gridTopPadding = 12;
     final int rowCount = timeSlots.length;
     final int colCount = days.length;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 24),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(vertical: 0),
+      padding: padding ?? const EdgeInsets.all(0),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x1A000000),
-            blurRadius: 16,
-            offset: Offset(0, 4),
-            spreadRadius: 0,
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final double gridWidth = constraints.maxWidth - timeColWidth;
-          final double cellW = gridWidth / colCount;
+          final double gridWidth = constraints.maxWidth;
+          final double cellW = gridWidth / colCount / 1.2;
 
           return Column(
             children: [
@@ -119,7 +121,7 @@ class TimetableGrid extends StatelessWidget {
                             d,
                             style: const TextStyle(
                               fontFamily: 'Pretendard',
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w800,
                               fontSize: 13,
                               color: Color(0xFF06003A),
                             ),
@@ -144,7 +146,7 @@ class TimetableGrid extends StatelessWidget {
                         cellHeight: cellHeight,
                         cellWidth: cellW,
                         timeColWidth: timeColWidth,
-                        lineColor: const Color(0xFFE5E5EA),
+                        lineColor: const Color(0xFFF0F0F5),
                       ),
                     ),
                     // 2. 시간 라벨
@@ -161,7 +163,7 @@ class TimetableGrid extends StatelessWidget {
                                 style: TextStyle(
                                   fontFamily: 'Pretendard',
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 13,
+                                  fontSize: 12,
                                   color: rowIdx % 2 == 0
                                       ? const Color(0xFFB6B0C3)
                                       : Colors.transparent,
@@ -179,78 +181,52 @@ class TimetableGrid extends StatelessWidget {
                       final int endIdx = timeToIndex(lec['end'] as String);
                       final int duration = endIdx - startIdx;
                       return Positioned(
-                        left: timeColWidth + col * cellW + 2, // 블럭 간격
-                        top: startIdx * cellHeight + 2, // 블럭 간격
-                        width: cellW - 4, // 블럭 간격
-                        height: cellHeight * duration - 4, // 블럭 간격
+                        left: timeColWidth + col * cellW,
+                        top: startIdx * cellHeight,
+                        width: cellW,
+                        height: cellHeight * duration,
                         child: Container(
+                          margin: EdgeInsets.zero,
                           decoration: BoxDecoration(
                             color: const Color(0xFF6178FA),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
-                            child: Stack(
-                              children: [
-                                // 왼쪽 상단 강의명
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Text(
-                                    lec['title']!,
-                                    style: const TextStyle(
-                                      fontFamily: 'Pretendard',
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 8,
-                                      color: Colors.white,
-                                      height: 1.2,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 1, vertical: 1),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                lec['title'] ?? '',
+                                style: const TextStyle(
+                                  fontFamily: 'Pretendard',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 9,
+                                  color: Colors.white,
                                 ),
-                                // 오른쪽 하단 교수명/강의실 (2줄)
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        lec['professor'] ?? '',
-                                        style: const TextStyle(
-                                          fontFamily: 'Pretendard',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 8,
-                                          color: Colors.white,
-                                          height: 1.2,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.right,
-                                      ),
-                                      Text(
-                                        lec['room'] ?? '',
-                                        style: const TextStyle(
-                                          fontFamily: 'Pretendard',
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 8,
-                                          color: Colors.white,
-                                          height: 1.2,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        textAlign: TextAlign.right,
-                                      ),
-                                    ],
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                              if ((lec['professor'] ?? '').isNotEmpty)
+                                Text(
+                                  lec['professor'],
+                                  style: const TextStyle(
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 8,
+                                    color: Colors.white,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
                                 ),
-                              ],
-                            ),
+                            ],
                           ),
                         ),
                       );
-                    }).toList(),
+                    }),
                   ],
                 ),
               ),

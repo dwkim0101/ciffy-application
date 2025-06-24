@@ -86,6 +86,21 @@ class LectureApi {
       return [];
     }
   }
+
+  static Future<List<Course>> fetchCourses() async {
+    try {
+      final response = await ApiClient.dio.get('/courses');
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data is List) {
+          return data.map((e) => Course.fromJson(e)).toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
 }
 
 class CourseProvider extends ChangeNotifier {
@@ -98,4 +113,37 @@ class CourseProvider extends ChangeNotifier {
   }
 
   // 필요시 서버에서 불러오는 fetchCourses 등도 추가 가능
+}
+
+// 시간표 결과 Provider
+class TimetableResultProvider extends ChangeNotifier {
+  List<Map<String, dynamic>> _timetables = [];
+  bool _loading = false;
+  String? _error;
+
+  List<Map<String, dynamic>> get timetables => _timetables;
+  bool get loading => _loading;
+  String? get error => _error;
+
+  void setLoading(bool value) {
+    _loading = value;
+    notifyListeners();
+  }
+
+  void setError(String? error) {
+    _error = error;
+    notifyListeners();
+  }
+
+  void setTimetables(List<Map<String, dynamic>> timetables) {
+    _timetables = timetables;
+    notifyListeners();
+  }
+
+  void clear() {
+    _timetables = [];
+    _loading = false;
+    _error = null;
+    notifyListeners();
+  }
 }

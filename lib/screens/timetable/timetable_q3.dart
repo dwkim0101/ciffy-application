@@ -42,7 +42,7 @@ class _TimetableQ3State extends State<TimetableQ3> {
   }
 
   List<Map<String, String>> _uniqueSubjects(BuildContext context) {
-    final courses = context.watch<CourseProvider>().courses;
+    final courses = Provider.of<CourseProvider>(context, listen: false).courses;
     final seen = <String>{};
     final result = <Map<String, String>>[];
     for (final course in courses) {

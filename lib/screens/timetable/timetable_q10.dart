@@ -211,6 +211,7 @@ class _TimetableQ10State extends State<TimetableQ10> {
               ),
             ),
             const Spacer(),
+            // 완료 버튼 항상 노출
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: TimetableQ2ButtonBar(

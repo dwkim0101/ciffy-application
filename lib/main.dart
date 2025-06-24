@@ -7,6 +7,7 @@ import 'widgets/bottom_bar.dart';
 import 'api/secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'api/lecture_api.dart';
+import 'api/user_api.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CourseProvider()),
+        ChangeNotifierProvider(create: (_) => TimetableResultProvider()),
       ],
       child: MaterialApp(
         title: 'CIFFY',
@@ -125,8 +127,18 @@ class _RootScreenState extends State<RootScreen> {
 
   Future<void> _checkLogin() async {
     final token = await SecureStorage.getToken();
+    if (token == null || token.isEmpty) {
+      setState(() {
+        _isLoggedIn = false;
+      });
+      return;
+    }
+    if (UserStore.user == null) {
+      final user = await UserApi.fetchUserInfo(token);
+      UserStore.user = user;
+    }
     setState(() {
-      _isLoggedIn = token != null && token.isNotEmpty;
+      _isLoggedIn = UserStore.user != null;
     });
   }
 

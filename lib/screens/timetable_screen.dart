@@ -10,6 +10,10 @@ import 'timetable/timetable_q6to9.dart';
 import 'timetable/timetable_q10.dart';
 import 'timetable/timetable_test_complete.dart';
 import 'timetable/timetable_result_screen.dart';
+import 'package:provider/provider.dart';
+import '../api/lecture_api.dart';
+import '../api/api_client.dart';
+import 'login_screen.dart';
 
 class TimeTableScreen extends StatefulWidget {
   const TimeTableScreen({super.key});
@@ -92,6 +96,125 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
     setState(() {
       _surveyStep = 11;
     });
+  }
+
+  Future<void> _onTestComplete(BuildContext context) async {
+    // Provider 불러오기
+    final timetableProvider =
+        Provider.of<TimetableResultProvider>(context, listen: false);
+    timetableProvider.setLoading(true);
+    timetableProvider.setError(null);
+    try {
+      // 설문 데이터를 API 요청 포맷으로 변환
+      final user = UserStore.user;
+      final body = {
+        "preRegistered": [],
+        "unavailableTimes":
+            _convertUnavailableTimes(_surveyData.unavailableTimes),
+        "wishLectures": _surveyData.majorWishLectures
+            .map((e) =>
+                "${e['name'] ?? ''}${e['professor'] != null ? '-${e['professor']}' : ''}")
+            .where((s) => s.trim().isNotEmpty)
+            .toList(),
+        "majorCount": _surveyData.majorRequiredCount,
+        "major": user?.major ?? '',
+        "currentSemester": user?.grade ?? 1,
+        "maxCredits": 21,
+        "maxTimetables": 5,
+      };
+      final dio = ApiClient.dio;
+      print('시간표 생성 요청 body:');
+      print(body);
+      final response = await dio.post(
+        'http://3.105.9.139:3000/api/timetable/create',
+        data: body,
+      );
+      print('statusCode: \\${response.statusCode}');
+      print('response.data:');
+      print(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // 결과 파싱 및 Provider 저장
+        final data = response.data;
+        // created.json 구조에 맞게 파싱 필요
+        final timetables = _parseTimetableResult(data);
+        print('파싱된 timetables: $timetables');
+        timetableProvider.setTimetables(timetables);
+        print('setTimetables: $timetables');
+        timetableProvider.setLoading(false);
+        setState(() => _surveyStep = 12);
+      } else {
+        timetableProvider.setError('서버 오류');
+        timetableProvider.setLoading(false);
+      }
+    } catch (e, stack) {
+      print('API 호출 에러:');
+      print(e);
+      print(stack);
+      timetableProvider.setError('네트워크 오류');
+      timetableProvider.setLoading(false);
+    }
+  }
+
+  List<String> _convertUnavailableTimes(List<List<bool>> unavailable) {
+    // 22행(9:00~19:00, 30분 단위), 5열(월~금)
+    const days = ['월', '화', '수', '목', '금'];
+    const timeSlots = [
+      '09:00~09:30',
+      '09:30~10:00',
+      '10:00~10:30',
+      '10:30~11:00',
+      '11:00~11:30',
+      '11:30~12:00',
+      '12:00~12:30',
+      '12:30~13:00',
+      '13:00~13:30',
+      '13:30~14:00',
+      '14:00~14:30',
+      '14:30~15:00',
+      '15:00~15:30',
+      '15:30~16:00',
+      '16:00~16:30',
+      '16:30~17:00',
+      '17:00~17:30',
+      '17:30~18:00',
+      '18:00~18:30',
+      '18:30~19:00',
+      '19:00~19:30',
+      '19:30~20:00'
+    ];
+    List<String> result = [];
+    for (int row = 0; row < unavailable.length; row++) {
+      for (int col = 0; col < unavailable[row].length; col++) {
+        if (unavailable[row][col]) {
+          result.add('${days[col]} ${timeSlots[row]}');
+        }
+      }
+    }
+    // 연속된 시간대는 하나로 합치지 않고, 선택된 모든 칸을 개별적으로 반환
+    return result;
+  }
+
+  List<Map<String, dynamic>> _parseTimetableResult(dynamic data) {
+    print('API 응답 데이터: $data');
+    if (data is Map && data['timetables'] is List) {
+      print('timetables: ${data['timetables']}');
+      // 2차원 배열(flatten)
+      final list = data['timetables'] as List;
+      return list
+          .expand((e) => e is List ? e : [e])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    if (data is List) {
+      print('data가 List: $data');
+      // 2차원 배열(flatten)
+      return data
+          .expand((e) => e is List ? e : [e])
+          .map((e) => Map<String, dynamic>.from(e))
+          .toList();
+    }
+    print('파싱 실패, 빈 배열 반환');
+    return [];
   }
 
   void _onSurveyDataChanged(TimeTableSurveyData data) {
@@ -197,7 +320,8 @@ class _TimeTableScreenState extends State<TimeTableScreen> {
         );
       case 11:
         return TimetableTestComplete(
-            onComplete: () => setState(() => _surveyStep = 12));
+          onComplete: () => _onTestComplete(context),
+        );
       case 12:
         return TimetableResultScreen(onRestartSurvey: _goToIntro);
       default:

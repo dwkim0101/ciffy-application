@@ -110,7 +110,7 @@ class _TimetableQ1State extends State<TimetableQ1> {
   }
 
   List<Map<String, dynamic>> _allLecturesWithCourseName(BuildContext context) {
-    final courses = context.watch<CourseProvider>().courses;
+    final courses = Provider.of<CourseProvider>(context, listen: false).courses;
     return courses
         .expand(
             (c) => c.lectures.map((l) => {'lecture': l, 'courseName': c.name}))

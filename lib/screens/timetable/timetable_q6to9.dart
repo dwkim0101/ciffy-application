@@ -167,14 +167,122 @@ class TimetableQ6to9 extends StatelessWidget {
             const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: TimetableQ2ButtonBar(
-                onPrev: onPrev,
-                onNext: onNext,
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: onPrev,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFC8C6D1),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            '이전',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      flex: 5,
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: value != -1 ? onNext : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF06003A),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            '다음',
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class TimetableQ2ButtonBar extends StatelessWidget {
+  final VoidCallback onPrev;
+  final VoidCallback? onNext;
+  final String nextLabel;
+  const TimetableQ2ButtonBar({
+    super.key,
+    required this.onPrev,
+    required this.onNext,
+    this.nextLabel = '다음',
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        ElevatedButton(
+          onPressed: onPrev,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFF5F3F1),
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: const Text(
+            '이전',
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Color(0xFF06003A),
+            ),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: onNext,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF6178FA),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: Text(
+            nextLabel,
+            style: const TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

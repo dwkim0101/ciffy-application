@@ -29,7 +29,7 @@ class TimetableQ5 extends StatefulWidget {
 class _TimetableQ5State extends State<TimetableQ5> {
   late List<Map<String, String?>> selectedLectures;
   late TextEditingController _searchController;
-  List<Map<String, dynamic>> _filteredLectures = [];
+  List<Map<String, String>> _filteredSubjects = [];
   final String _selectedProfessor = '전체';
 
   @override
@@ -45,14 +45,30 @@ class _TimetableQ5State extends State<TimetableQ5> {
     _searchController.addListener(_onSearchFocusOrChange);
   }
 
+  List<Map<String, String>> _uniqueMajorSubjects(BuildContext context) {
+    final courses = Provider.of<CourseProvider>(context, listen: false).courses;
+    final major = UserStore.user?.major ?? '';
+    final seen = <String>{};
+    final result = <Map<String, String>>[];
+    for (final course in courses) {
+      if ((course.type == '전공필수' || course.type == '전공선택') &&
+          course.mandatory == major) {
+        if (!seen.contains(course.name)) {
+          seen.add(course.name);
+          result.add({'name': course.name});
+        }
+      }
+    }
+    return result;
+  }
+
   void _onSearchFocusOrChange() {
     if (_searchFocusNode.hasFocus && _searchController.text.trim().isEmpty) {
       setState(() {
-        _filteredLectures = _majorLecturesWithCourseName(context)
-            .where((lec) => !selectedLectures.any((sel) =>
-                sel['id'] == lec['lecture'].id &&
-                sel['classId'] == lec['lecture'].classId &&
-                sel['professor'] == lec['lecture'].professor))
+        _filteredSubjects = _uniqueMajorSubjects(context)
+            .where((subj) => !selectedLectures.any((sel) =>
+                sel['name'] == subj['name'] &&
+                sel['professor'] == subj['professor']))
             .toList();
       });
     }
@@ -60,76 +76,82 @@ class _TimetableQ5State extends State<TimetableQ5> {
 
   final FocusNode _searchFocusNode = FocusNode();
 
-  void _applyFilter() {
-    setState(() {
-      Iterable<Map<String, dynamic>> list =
-          _majorLecturesWithCourseName(context).where((lec) =>
-              !selectedLectures.any((sel) =>
-                  sel['id'] == lec['lecture'].id &&
-                  sel['classId'] == lec['lecture'].classId &&
-                  sel['professor'] == lec['lecture'].professor));
-      if (_selectedProfessor != '전체') {
-        list =
-            list.where((lec) => lec['lecture'].professor == _selectedProfessor);
-      }
-      _filteredLectures = list.toList();
-    });
-  }
-
   void _updateLectureName(String value) {
     setState(() {
-      Iterable<Map<String, dynamic>> list =
-          _majorLecturesWithCourseName(context).where((lec) =>
-              !selectedLectures.any((sel) =>
-                  sel['id'] == lec['lecture'].id &&
-                  sel['classId'] == lec['lecture'].classId &&
-                  sel['professor'] == lec['lecture'].professor));
-      if (_selectedProfessor != '전체') {
-        list =
-            list.where((lec) => lec['lecture'].professor == _selectedProfessor);
-      }
       if (value.trim().isEmpty) {
         if (_searchFocusNode.hasFocus) {
-          _filteredLectures = list
-              .where((lec) => !selectedLectures.any((sel) =>
-                  sel['id'] == lec['lecture'].id &&
-                  sel['classId'] == lec['lecture'].classId &&
-                  sel['professor'] == lec['lecture'].professor))
+          _filteredSubjects = _uniqueMajorSubjects(context)
+              .where((subj) => !selectedLectures.any((sel) =>
+                  sel['name'] == subj['name'] &&
+                  sel['professor'] == subj['professor']))
               .toList();
         } else {
-          _filteredLectures = [];
+          _filteredSubjects = [];
         }
       } else if (value.trim().length < 2) {
-        _filteredLectures = [];
+        _filteredSubjects = [];
       } else {
         final query = value.trim().toLowerCase().replaceAll(' ', '');
-        _filteredLectures = list
-            .where((lec) => lec['courseName']
+        _filteredSubjects = _uniqueMajorSubjects(context)
+            .where((subj) => (subj['name'] ?? '')
                 .replaceAll(' ', '')
                 .toLowerCase()
                 .contains(query))
-            .where((lec) => !selectedLectures.any((sel) =>
-                sel['id'] == lec['lecture'].id &&
-                sel['classId'] == lec['lecture'].classId &&
-                sel['professor'] == lec['lecture'].professor))
+            .where((subj) => !selectedLectures.any((sel) =>
+                sel['name'] == subj['name'] &&
+                sel['professor'] == subj['professor']))
             .toList();
       }
     });
   }
 
-  void _selectLecture(Map<String, dynamic> lec) {
-    setState(() {
-      selectedLectures.add({
-        'id': lec['lecture'].id,
-        'name': '${lec['courseName']} - ${lec['lecture'].classId}분반',
-        'classId': lec['lecture'].classId,
-        'professor': lec['lecture'].professor,
-        'time': lec['lecture'].time,
+  void _selectLecture(Map<String, String> subj) async {
+    // 과목명 클릭 시 교수명 리스트 모달 노출
+    final courses = Provider.of<CourseProvider>(context, listen: false).courses;
+    final course = courses.firstWhere((c) => c.name == subj['name']);
+    final professors = course.lectures.map((l) => l.professor).toSet().toList();
+    final selectedProfessor = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return ListView(
+          shrinkWrap: true,
+          children: [
+            const SizedBox(height: 16),
+            const Center(
+              child: Text(
+                '교수님을 선택하세요',
+                style: TextStyle(
+                  fontFamily: 'Pretendard',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  color: Color(0xFF06003A),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ...professors.map((prof) => ListTile(
+                  title: Text(prof),
+                  onTap: () => Navigator.pop(context, prof),
+                )),
+            const SizedBox(height: 16),
+          ],
+        );
+      },
+    );
+    if (selectedProfessor != null && selectedProfessor.isNotEmpty) {
+      setState(() {
+        selectedLectures.add({
+          'name': subj['name'] ?? '',
+          'professor': selectedProfessor,
+        });
+        _searchController.clear();
+        _filteredSubjects = [];
+        _notifyChange();
       });
-      _searchController.clear();
-      _filteredLectures = [];
-      _notifyChange();
-    });
+    }
   }
 
   void _removeLecture(int idx) {
@@ -142,18 +164,6 @@ class _TimetableQ5State extends State<TimetableQ5> {
   void _notifyChange() {
     widget.onChanged(widget.data
       ..majorWishLectures = List<Map<String, String?>>.from(selectedLectures));
-  }
-
-  List<Map<String, dynamic>> _majorLecturesWithCourseName(
-      BuildContext context) {
-    final courses = context.watch<CourseProvider>().courses;
-    final major = UserStore.user?.major ?? '';
-    return courses
-        .where((c) =>
-            (c.type == '전공필수' || c.type == '전공선택') && c.mandatory == major)
-        .expand(
-            (c) => c.lectures.map((l) => {'lecture': l, 'courseName': c.name}))
-        .toList();
   }
 
   @override
@@ -256,11 +266,10 @@ class _TimetableQ5State extends State<TimetableQ5> {
                 onTap: () {
                   if (_searchController.text.trim().isEmpty) {
                     setState(() {
-                      _filteredLectures = _majorLecturesWithCourseName(context)
-                          .where((lec) => !selectedLectures.any((sel) =>
-                              sel['id'] == lec['lecture'].id &&
-                              sel['classId'] == lec['lecture'].classId &&
-                              sel['professor'] == lec['lecture'].professor))
+                      _filteredSubjects = _uniqueMajorSubjects(context)
+                          .where((subj) => !selectedLectures.any((sel) =>
+                              sel['name'] == subj['name'] &&
+                              sel['professor'] == subj['professor']))
                           .toList();
                     });
                   }
@@ -318,11 +327,9 @@ class _TimetableQ5State extends State<TimetableQ5> {
                                   ),
                                 ),
                                 if ((selectedLectures[i]['professor'] ?? '')
-                                        .isNotEmpty ||
-                                    (selectedLectures[i]['time'] ?? '')
-                                        .isNotEmpty)
+                                    .isNotEmpty)
                                   Text(
-                                    '${selectedLectures[i]['professor'] ?? ''} · ${selectedLectures[i]['time'] ?? ''}',
+                                    selectedLectures[i]['professor'] ?? '',
                                     style: const TextStyle(
                                       fontFamily: 'Pretendard',
                                       fontWeight: FontWeight.w400,
@@ -345,18 +352,18 @@ class _TimetableQ5State extends State<TimetableQ5> {
                 ),
               ),
             // 검색 결과 카드 리스트
-            if (_filteredLectures.isNotEmpty)
+            if (_filteredSubjects.isNotEmpty)
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8),
                 child: SizedBox(
                   height: 140,
                   child: ListView.builder(
-                    itemCount: _filteredLectures.length,
+                    itemCount: _filteredSubjects.length,
                     itemBuilder: (context, idx) {
-                      final lec = _filteredLectures[idx];
+                      final subj = _filteredSubjects[idx];
                       return GestureDetector(
-                        onTap: () => _selectLecture(lec),
+                        onTap: () => _selectLecture(subj),
                         child: Container(
                           margin: const EdgeInsets.symmetric(vertical: 4),
                           padding: const EdgeInsets.symmetric(
@@ -377,22 +384,12 @@ class _TimetableQ5State extends State<TimetableQ5> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${lec['courseName']} - ${lec['lecture'].classId}분반',
+                                subj['name'] ?? '',
                                 style: const TextStyle(
                                   fontFamily: 'Pretendard',
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                   color: Color(0xFF06003A),
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${lec['lecture'].professor} · ${lec['lecture'].time}',
-                                style: const TextStyle(
-                                  fontFamily: 'Pretendard',
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 13,
-                                  color: Color(0xFFB6B1C2),
                                 ),
                               ),
                             ],

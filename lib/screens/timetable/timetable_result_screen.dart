@@ -7,6 +7,44 @@ import '../../widgets/graduation_analysis/requirement_list.dart';
 import 'timetable_intro.dart';
 import 'timetable_q1.dart';
 import 'timetable_survey_data.dart';
+import 'package:provider/provider.dart';
+import '../../api/lecture_api.dart';
+
+class _SubjectListView extends StatelessWidget {
+  final List<Map<String, dynamic>> subjects;
+  const _SubjectListView({required this.subjects});
+
+  @override
+  Widget build(BuildContext context) {
+    if (subjects.isEmpty) {
+      return const Center(child: Text('과목이 없습니다.'));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...subjects.map((subj) => Card(
+              margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+              child: ListTile(
+                title: Text(subj['course']?['name'] ?? subj['title'] ?? ''),
+                subtitle: Text(
+                  [
+                    subj['professor'] ?? '',
+                    (subj['classId'] != null &&
+                            (subj['classId'] is String &&
+                                (subj['classId'] as String).isNotEmpty))
+                        ? '${subj['classId']}분반'
+                        : '',
+                    subj['time'] ?? ''
+                  ]
+                      .where((e) => e != null && (e as String).isNotEmpty)
+                      .join(' · '),
+                ),
+              ),
+            ))
+      ],
+    );
+  }
+}
 
 class TimetableResultScreen extends StatefulWidget {
   final VoidCallback onRestartSurvey;
@@ -18,77 +56,6 @@ class TimetableResultScreen extends StatefulWidget {
 }
 
 class _TimetableResultScreenState extends State<TimetableResultScreen> {
-  // mockTimetables: 각 시간표별 강의 리스트
-  final List<List<Map<String, dynamic>>> mockTimetables = [
-    [
-      {
-        'title': '인도의정치경제와사회',
-        'room': '집401',
-        'professor': '이지은',
-        'day': 0,
-        'start': '09:00',
-        'end': '10:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 1,
-        'start': '12:00',
-        'end': '13:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 2,
-        'start': '12:00',
-        'end': '13:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 3,
-        'start': '12:00',
-        'end': '13:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 4,
-        'start': '12:00',
-        'end': '13:30',
-      },
-    ],
-    [
-      {
-        'title': '인도의정치경제와사회',
-        'room': '집401',
-        'professor': '이지은',
-        'day': 0,
-        'start': '09:00',
-        'end': '10:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 1,
-        'start': '13:00',
-        'end': '14:30',
-      },
-      {
-        'title': '강의명',
-        'room': '강의실',
-        'professor': '교수님',
-        'day': 2,
-        'start': '13:00',
-        'end': '14:30',
-      },
-    ],
-  ];
   int _currentPage = 0;
   int? _selectedIndex;
   bool _showDetail = false;
@@ -112,10 +79,25 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
     '전공선택': ['C과목', 'D과목'],
   };
 
-  void _openDetail(List<Map<String, dynamic>> lectures) {
+  void _openDetail(Map<String, dynamic> timetable) {
+    final majors = timetable['majors'] as List? ?? [];
+    final liberals = timetable['liberals'] as List? ?? [];
+    final List<Map<String, String>> subjects = [];
+    for (final item in [...majors, ...liberals]) {
+      final course = item['course'] as Map?;
+      if (course == null) continue;
+      final title = course['name']?.toString() ?? '';
+      final professor = item['professor']?.toString() ?? '';
+      final time = item['time']?.toString() ?? '';
+      subjects.add({
+        'title': title,
+        'professor': professor,
+        'time': time,
+      });
+    }
     setState(() {
       _showDetail = true;
-      _detailLectures = lectures;
+      _detailLectures = subjects;
     });
   }
 
@@ -128,6 +110,23 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final timetableProvider = Provider.of<TimetableResultProvider>(context);
+    final timetables = timetableProvider.timetables;
+    final loading = timetableProvider.loading;
+    final error = timetableProvider.error;
+
+    if (loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    if (error != null) {
+      return Scaffold(
+        body: Center(
+            child:
+                Text('에러: $error', style: const TextStyle(color: Colors.red))),
+      );
+    }
     if (_showDetail) {
       // 자세히 보기 화면
       return Scaffold(
@@ -206,8 +205,8 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
                         ],
                       ),
                     ),
-                    // 시간표 그리드(홈 컴포넌트 재사용)
-                    TimetableGrid(lectures: _detailLectures),
+                    // 과목 리스트만 시각화
+                    _SubjectListView(subjects: _detailLectures),
                     const SizedBox(height: 32),
                     // 강의후기(후기 컴포넌트 재사용)
                     const Text(
@@ -293,7 +292,7 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
         ),
       );
     }
-    // 결과 화면(기존)
+    // 결과 화면
     return Scaffold(
       appBar: null,
       body: Stack(
@@ -332,42 +331,155 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
                 ),
               ),
               Expanded(
-                child: PageView.builder(
-                  itemCount: mockTimetables.length,
-                  controller: PageController(viewportFraction: 0.85),
-                  onPageChanged: (idx) => setState(() {
-                    _currentPage = idx;
-                    _selectedIndex = null;
-                  }),
-                  itemBuilder: (context, idx) {
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedIndex = idx),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        margin: EdgeInsets.symmetric(
-                          vertical: _selectedIndex == idx ? 8 : 24,
-                          horizontal: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          boxShadow: _selectedIndex == idx
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 4),
+                child: timetables.isEmpty
+                    ? const Center(child: Text('생성된 시간표가 없습니다.'))
+                    : PageView.builder(
+                        itemCount: timetables.length,
+                        controller: PageController(viewportFraction: 0.85),
+                        onPageChanged: (idx) => setState(() {
+                          _currentPage = idx;
+                          _selectedIndex = null;
+                        }),
+                        itemBuilder: (context, idx) {
+                          final timetable = timetables[idx];
+                          final map = timetable;
+                          final majors = map['majors'] as List? ?? [];
+                          final liberals = map['liberals'] as List? ?? [];
+                          print('majors: $majors');
+                          print('liberals: $liberals');
+                          final List<Map<String, String>> subjects = [];
+                          for (final item in [...majors, ...liberals]) {
+                            final course = item['course'] as Map?;
+                            if (course == null) continue;
+                            final title = course['name']?.toString() ?? '';
+                            final professor =
+                                item['professor']?.toString() ?? '';
+                            final time = item['time']?.toString() ?? '';
+                            print(
+                                'title: $title, professor: $professor, time: $time');
+                            subjects.add({
+                              'title': title,
+                              'professor': professor,
+                              'time': time,
+                            });
+                          }
+                          print('subjects: $subjects');
+                          if (subjects.isEmpty) {
+                            return const Center(child: Text('과목 없음'));
+                          }
+                          // 시간표 그리드에 맞게 변환 + 온라인 강의 분리
+                          List<Map<String, dynamic>> onlineLectures = [];
+                          List<Map<String, dynamic>> convertSubjectsForGrid(
+                              List<Map<String, String>> subjects) {
+                            const days = ['월', '화', '수', '목', '금'];
+                            List<Map<String, dynamic>> result = [];
+                            onlineLectures.clear();
+                            for (final subj in subjects) {
+                              final time = subj['time'] ?? '';
+                              if (time.trim().isEmpty) {
+                                onlineLectures.add({
+                                  'title': subj['title'],
+                                  'professor': subj['professor'],
+                                });
+                                continue;
+                              }
+                              final matches = RegExp(
+                                      r'([월화수목금])(?:\s)?(\d{2}:\d{2})~(\d{2}:\d{2})')
+                                  .allMatches(time);
+                              for (final m in matches) {
+                                final dayIdx = days.indexOf(m.group(1)!);
+                                if (dayIdx == -1) continue;
+                                final start = m.group(2)!;
+                                final end = m.group(3)!;
+                                int timeToIndex(String t) {
+                                  final parts = t.split(':');
+                                  final hour = int.parse(parts[0]);
+                                  final min = int.parse(parts[1]);
+                                  return (hour - 9) * 2 + (min >= 30 ? 1 : 0);
+                                }
+
+                                final startIdx = timeToIndex(start);
+                                final endIdx = timeToIndex(end);
+                                if (startIdx < 0 ||
+                                    startIdx > 18 ||
+                                    endIdx < 1 ||
+                                    endIdx > 19) continue;
+                                result.add({
+                                  'title': subj['title'],
+                                  'professor': subj['professor'],
+                                  'day': dayIdx,
+                                  'start': start,
+                                  'end': end,
+                                });
+                              }
+                            }
+                            return result;
+                          }
+
+                          final gridLectures = convertSubjectsForGrid(subjects);
+                          return Container(
+                            margin: const EdgeInsets.only(
+                                top: 12, bottom: 60, right: 12, left: 12),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 12, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                SizedBox(
+                                  height: 420, // 고정 높이로 overflow 방지
+                                  child: TimetableGrid(
+                                    lectures: gridLectures,
+                                    padding: const EdgeInsets.all(
+                                        20), // 내부 그리드 padding 원래대로
                                   ),
-                                ]
-                              : [],
-                        ),
-                        child: TimetableGrid(lectures: mockTimetables[idx]),
+                                ),
+                                if (onlineLectures.isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 18.0,
+                                        left: 4,
+                                        right: 4,
+                                        bottom: 2),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('온라인 강의',
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                                color: Color(0xFF160095))),
+                                        const SizedBox(height: 4),
+                                        ...onlineLectures.map((lec) => Text(
+                                              '${lec['title']} ${lec['professor'] != null && lec['professor']!.isNotEmpty ? '· ${lec['professor']}' : ''}',
+                                              style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Color(0xFF160095)),
+                                            )),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    );
-                  },
-                ),
               ),
             ],
           ),
-          if (_selectedIndex != null)
+          if (timetables.isNotEmpty)
             Positioned(
               left: 0,
               right: 0,
@@ -382,7 +494,7 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (_selectedIndex == null) return;
-                            _openDetail(mockTimetables[_selectedIndex!]);
+                            _openDetail(timetables[_selectedIndex ?? 0]);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE6E3ED),
@@ -435,5 +547,17 @@ class _TimetableResultScreenState extends State<TimetableResultScreen> {
         ],
       ),
     );
+  }
+
+  // TimetableGrid의 timeToIndex와 동일하게, 9:00~18:30만 허용
+  int? _safeTimeToIndex(String time) {
+    final parts = time.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final min = int.tryParse(parts[1]);
+    if (hour == null || min == null) return null;
+    final idx = (hour - 9) * 2 + (min >= 30 ? 1 : 0);
+    if (idx < 0 || idx > 18) return null;
+    return idx;
   }
 }

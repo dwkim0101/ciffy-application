@@ -25,7 +25,17 @@ class HomeScreen extends StatelessWidget {
                 const HomeGreeting(),
                 const SizedBox(height: 20),
                 const TodayClassBox(),
-                const TimetableGrid(),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: TimetableGrid(),
+                  ),
+                ),
                 const HomeReviewSection(),
                 const SizedBox(height: 10),
               ],
